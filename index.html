@@ -7,8 +7,8 @@
     <script src = "js/phaser.js"></script>
     <script src = "js/Boot.js"></script>
     <script src = "js/Preload.js"></script>
-    <script src = "js/MainMenu.js>"></script>
-    <script src = "js/ActualMenu.js"></script>
+    <script src = "js/Level1.js>"></script>
+    <script src = "js/MainMenu.js"></script>
 </head>
 
 
@@ -16,12 +16,14 @@
     <script type="text/javascript">
 window.onload = function(){
 
-    var game = new Phaser.Game(800,600,Phaser.AUTO,'');
+    var game = new Phaser.Game(800,600,Phaser.CANVAS,'');
 
         game.state.add('Boot',Game.Boot);
         game.state.add('Preload',Game.Preload);
         game.state.add('MainMenu',Game.MainMenu);
-        game.state.add('ActualMenu',Game.ActualMenu);
+        game.state.add('FailState',Game.FailState);
+        game.state.add('Level1',Game.Level1);
+        game.state.add('Level2',Game.Level2);
 
         game.state.start('Boot');
 
@@ -74,12 +76,16 @@ Game.Preload.prototype = {
         this.load.tilemap('map', 'assets/maps/level1.csv');
         this.load.image('tileset', 'assets/brownblock.png');
         this.load.image('player', 'assets/blackblock.png');
-        this.load.spritesheet('buttons', 'assets/button_sprite_sheet.png', 193, 71);
+        this.load.spritesheet('buttons', 'assets/start_button.png', 193, 71);
+        this.load.image('EnemyRed', 'assets/redblock.png');
+        this.load.image('bullet', 'assets/bullet.png');
+        this.load.audio('shoot','assets/shoot.wav');
+        this.load.audio('thud','assets/thud.wav');
     },
 
     create: function() {
-        //Pass the torch to MainMenu
-        this.game.state.start('ActualMenu');
+        //Pass the torch to Level1
+        this.game.state.start('MainMenu');
     }
 };
 
@@ -89,57 +95,79 @@ Game.Preload.prototype = {
 
 
 
-Game.ActualMenu = function(){};
+Game.MainMenu = function(){};
 
 var button;
 
-Game.ActualMenu.prototype = {
+Game.MainMenu.prototype = {
     create: function() {
 
         startButton = this.add.button(this.world.centerX -95, this.world.centerY + 200, 'buttons', 
                                   function(){
-                                    this.game.state.start('MainMenu');
+                                    this.game.state.start('Level1');
                                   },this,2,1,0);
         console.log("huh");
 
     }
 }
 
-//MAIN MENU "FILE" BELOW
+//LEVEL 1 BELOW
 
+//Defining enemy red
+EnemyRed = function(index, game, x, y){
 
+    this.red = game.add.sprite(x,y,'EnemyRed');
+    this.red.anchor.setTo(0.5,0.5);
+    this.red.name = index.toString();
+    game.physics.enable(this.red,Phaser.Physics.ARCADE);
+    this.red.body.immovable = true;
+    this.red.body.collideWorldBounds = true;
+    this.red.body.allowGravity = false;
 
+    this.redTween = game.add.tween(this.red).to({
+        y: 250,
+    }, 2000, 'Linear', true, 0, 250, true);
 
-Game.MainMenu = function(){};
+}
+
+var enemy1; 
+
+Game.Level1 = function(){};
 
 var map;
 var layer;
 
 var player;
 var controls = {};
-var playerSpeed = 350; 
+var playerSpeed = 325; 
 var jumpTimer = 0;
+var shootTime = 90;
+var bullets;
+var remaining = 2;
+var chillTime = 200;
 
 ///var button;
 
-Game.MainMenu.prototype = {
+Game.Level1.prototype = {
 
-    create: function() {
+    create: function(game) {
         //Background color definition
         this.stage.backgroundColor = '#d3d3d3';
 
         //Map initialization
-        map = this.add.tilemap('map', 50, 50)
+        map = this.add.tilemap('map', 25, 25)
         map.addTilesetImage('tileset');
         layer = map.createLayer(0);
         layer.resizeWorld();
+        remaining = 2;
 
         //Collision/Physics 
         this.physics.arcade.gravity.y = 1400;
         map.setCollisionBetween(0,0);
+        //map.setTileIndexCallback(2,this.resetPlayer,this);
 
         //Set player
-        player = this.add.sprite(100,560, 'player');
+        player = this.add.sprite(100,300, 'player');
         player.anchor.setTo(0.5,0.5);
         //player.animations.add('runRight',[6, 7, 8, 9], 5, true);
         //player.animations.add('runLeft',[0, 1, 2, 3], 5, true);
@@ -155,6 +183,7 @@ Game.MainMenu.prototype = {
             left: this.input.keyboard.addKey(Phaser.Keyboard.D),
             up: this.input.keyboard.addKey(Phaser.Keyboard.W),
             down: this.input.keyboard.addKey(Phaser.Keyboard.S),
+            shoot: this.input.keyboard.addKey(Phaser.Keyboard.F),
         }
 
         //button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 
@@ -162,10 +191,54 @@ Game.MainMenu.prototype = {
         //                          console.log("ay");
         //                      },this,2,1,0);
 
+        
+        //Spawning bird
+        enemy1 = new EnemyRed(0, game, player.x+400, player.y-200);
+        enemy2 = new EnemyRed(0, game, 100, enemy1.y+400);
+
+        //Init bullets
+        bullets = game.add.group();
+        bullets.enableBody = true;
+        bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        bullets.createMultiple(50, 'bullet');
+        bullets.setAll('anchor.x',0.5);
+        bullets.setAll('anchor.y',0.5);
+        bullets.setAll('outOfBoundsKill', true);
+        bullets.setAll('checkWorldBounds', true);
+        bullets.setAll('allowGravity', false);
+
+
+
     },
-    update: function() {
+    update: function(game) {
         //Collision
-        this.physics.arcade.collide(player,layer);
+        this.physics.arcade.collide(player,layer,function(){
+            if(game.time.now > chillTime){
+                game.add.audio('thud').play();
+                chillTime = game.time.now + 200
+            }
+        });
+        this.physics.arcade.collide(player,enemy1.red, function(){
+            game.state.start('FailState');
+        });
+        this.physics.arcade.collide(player,enemy2.red, function(){
+            game.state.start('FailState');
+        })
+        this.physics.arcade.collide(bullets,enemy1.red, function(){
+            enemy1.red.kill();
+            remaining -= 1;
+            game.add.audio('shoot').play();
+            bullets.getFurthestFrom(player).kill();
+        });
+        this.physics.arcade.collide(bullets,enemy2.red, function(){
+            enemy2.red.kill();
+            remaining -= 1;
+            game.add.audio('shoot').play();
+            bullets.getFurthestFrom(player).kill();
+        })
+        this.physics.arcade.collide(bullets,layer, function(){
+            bullets.getFurthestFrom(player).kill();
+        });
 
         player.body.velocity.x = 0.8*player.body.velocity.x;
         player.body.velocity.y = 0.8*player.body.velocity.y;
@@ -177,6 +250,7 @@ Game.MainMenu.prototype = {
         }
         player.body.allowGravity = false;
         player.body.bounce.set(0.8)
+
 
         if(controls.right.isDown){
         //  player.animations.play('runRight');
@@ -195,8 +269,84 @@ Game.MainMenu.prototype = {
         if(controls.down.isDown){
             player.body.velocity.y += playerSpeed;
         }
+
+        if(game.input.activePointer.isDown){
+            shootbullet(game);
+        }
+
+        if(checkOverlap(bullets,enemy1.red)){
+            enemy1.red.kill();
+        }
+
+        if(remaining==0){
+            this.game.state.start('Level2');
+        }
+
+
+    },
+
+    resetPlayer: function(game){
+        game.state.start('FailState');
     }
 }; 
+
+
+//LEVEL 2 BELOW
+
+Game.Level2 = function(){};
+
+Game.Level2.prototype = {
+    create: function(){
+        this.stage.backgroundColor = "#000";
+        winText = this.game.add.text(this.world.centerX - 88, this.world.centerY - 200, 'Nicely done!!',
+                                        {  fontSize: '32px',
+                                           fill: '#fff'});
+        again_button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 'buttons',
+                                        function(){
+                                            this.game.state.start('Level1');
+                                        },this,2,1,0);
+    }
+}
+
+//FAIL STATE BELOW
+
+
+Game.FailState = function(){};
+
+Game.FailState.prototype = {
+
+    create: function(){
+        this.stage.backgroundColor = "#000";
+        failText = this.game.add.text(this.world.centerX - 75, this.world.centerY - 200, 'You failed!', 
+                                        { fontSize: '32px',
+                                          fill: '#fff'});
+        retry_button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 'buttons',
+                                        function(){
+                                            this.game.state.start('Level1');
+                                        },this,2,1,0);
+    }
+}
+
+function checkOverlap(spriteA,spriteB){
+
+    var boundsA = spriteA.getBounds();
+    var boundsB = spriteB.getBounds();
+    return Phaser.Rectangle.intersects(boundsA,boundsB);
+}
+
+
+function shootbullet(game) {
+    if(game.time.now > shootTime/* && bullets.countDead() > 0*/) {
+        shootTime = game.time.now + 200;
+        var bullet = bullets.getFirstDead();
+        bullet.reset(player.x, player.y);
+        game.physics.arcade.moveToPointer(bullet, 2000);
+        bullet.body.allowGravity = false;
+        bullet.body.bounce.set(0);
+    }
+}
+
+
 
     </script>
 </body>
