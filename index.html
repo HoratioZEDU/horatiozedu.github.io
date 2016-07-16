@@ -124,9 +124,11 @@ EnemyRed = function(index, game, x, y){
     this.red.body.collideWorldBounds = true;
     this.red.body.allowGravity = false;
 
-    this.redTween = game.add.tween(this.red).to({
-        y: 250,
-    }, 2000, 'Linear', true, 0, 250, true);
+
+
+    //this.redTween = game.add.tween(this.red).to({
+    //    y: 250,
+    //}, 2000, 'Linear', true, 0, 250, true);
 
 }
 
@@ -145,6 +147,10 @@ var shootTime = 90;
 var bullets;
 var remaining = 2;
 var chillTime = 200;
+var chillTimeBad = 200;
+var enemy1;
+var enemy2;
+var enemySpeed = 75;
 
 ///var button;
 
@@ -168,12 +174,14 @@ Game.Level1.prototype = {
 
         //Set player
         player = this.add.sprite(100,300, 'player');
-        player.anchor.setTo(0.5,0.5);
+        player.anchor.setTo(0.5);
         //player.animations.add('runRight',[6, 7, 8, 9], 5, true);
         //player.animations.add('runLeft',[0, 1, 2, 3], 5, true);
         this.physics.arcade.enable(player);
         this.camera.follow(player);
         player.body.collideWorldBounds = true;
+        game.physics.enable(player,Phaser.Physics.ARCADE);
+        player.physicsBodyType = Phaser.Physics.ARCADE;
         player.body.velocity.x = 0;
         player.body.velocity.y = 0;
 
@@ -194,6 +202,7 @@ Game.Level1.prototype = {
         
         //Spawning bird
         enemy1 = new EnemyRed(0, game, player.x+400, player.y-200);
+        enemy1.hp = 5;
         enemy2 = new EnemyRed(0, game, 100, enemy1.y+400);
 
         //Init bullets
@@ -208,38 +217,41 @@ Game.Level1.prototype = {
         bullets.setAll('allowGravity', false);
 
 
-
     },
     update: function(game) {
         //Collision
         this.physics.arcade.collide(player,layer,function(){
             if(game.time.now > chillTime){
                 game.add.audio('thud').play();
-                chillTime = game.time.now + 200
+                chillTime = game.time.now + 200;
             }
         });
+        this.physics.arcade.collide(enemy1.red,layer);
         this.physics.arcade.collide(player,enemy1.red, function(){
             game.state.start('FailState');
         });
         this.physics.arcade.collide(player,enemy2.red, function(){
             game.state.start('FailState');
-        })
+        });
         this.physics.arcade.collide(bullets,enemy1.red, function(){
-            enemy1.red.kill();
-            remaining -= 1;
+            enemy1.hp -= 1;
             game.add.audio('shoot').play();
             bullets.getFurthestFrom(player).kill();
+            if(enemy1.seen!=1){
+                enemy1.seen = 1;
+            }
         });
         this.physics.arcade.collide(bullets,enemy2.red, function(){
             enemy2.red.kill();
             remaining -= 1;
             game.add.audio('shoot').play();
             bullets.getFurthestFrom(player).kill();
-        })
+        });
         this.physics.arcade.collide(bullets,layer, function(){
             bullets.getFurthestFrom(player).kill();
         });
 
+        //Player movement
         player.body.velocity.x = 0.8*player.body.velocity.x;
         player.body.velocity.y = 0.8*player.body.velocity.y;
         if(Math.abs(player.body.velocity.x) >= playerSpeed*2){
@@ -274,19 +286,45 @@ Game.Level1.prototype = {
             shootbullet(game);
         }
 
-        if(checkOverlap(bullets,enemy1.red)){
-            enemy1.red.kill();
-        }
-
+        //State checks
         if(remaining==0){
             this.game.state.start('Level2');
         }
 
+        if(enemy1.hp<=0){
+            enemy1.red.kill();
+            remaining -= 1;
+        }
+
+        //Enemy movement
+        //radians1 = game.physics.arcade.angleBetweenCenters(enemy1, player);
+        //game.physics.arcade.velocityFromRotation(radians1, 200, enemy1.red.body.velocity);
+        distance1_from_player = Math.sqrt(Math.abs((player.x - enemy1.red.x))+Math.abs((player.y - enemy1.red.y)));
+        if(distance1_from_player<=18){
+            enemyMovement(enemy1.red);
+            enemy1.seen = 1;
+        } else if(enemy1.seen==1){
+            enemyMovement(enemy1.red);
+        } else {
+            enemy1.red.body.velocity.x = 0;
+            enemy1.red.body.velocity.y = 0;
+        }
+
+        distance2_from_player = Math.sqrt(Math.abs((player.x - enemy2.red.x))+Math.abs((player.y - enemy2.red.y)));
+        if(distance2_from_player<=18){
+            enemyMovement(enemy2.red);
+            enemy2.seen = 1;
+        } else if(enemy2.seen==1){
+            enemyMovement(enemy2.red);
+        } else {
+            enemy2.red.body.velocity.x = 0;
+            enemy2.red.body.velocity.y = 0;
+        }
 
     },
 
     resetPlayer: function(game){
-        game.state.start('FailState');
+        game.state.start('FailState'); 
     }
 }; 
 
@@ -345,6 +383,37 @@ function shootbullet(game) {
         bullet.body.bounce.set(0);
     }
 }
+
+function enemyMovement(enemy){
+    if(Math.abs(enemy.x - player.x) <= 2){
+        enemy.x = player.x;
+    } else if(enemy.x > player.x){
+        enemy.body.velocity.x -= enemySpeed;
+    } else if(enemy.x < player.x) {
+        enemy.body.velocity.x += enemySpeed;
+    } else if(enemy.x == player.x) {
+        enemy.body.velocity.x = 0;
+    }
+
+    if(Math.abs(enemy.body.velocity.x) > enemySpeed){
+        enemy.body.velocity.x = enemySpeed*(enemy.body.velocity.x/Math.abs(enemy.body.velocity.x));
+    }
+
+    if(Math.abs(enemy.y - player.y) <= 2){
+        enemy.y = player.y;
+    } else if(enemy.y > player.y){
+        enemy.body.velocity.y -= enemySpeed;
+    } else if(enemy.y < player.y) {
+        enemy.body.velocity.y += enemySpeed;
+    } else if(enemy.y == player.y) {
+        enemy.body.velocity.y = 0;
+    }
+
+    if(Math.abs(enemy.body.velocity.y) > enemySpeed){
+        enemy.body.velocity.y = enemySpeed*(enemy.body.velocity.y/Math.abs(enemy.body.velocity.y));
+    }
+}
+
 
 
 
