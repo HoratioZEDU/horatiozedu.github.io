@@ -78,6 +78,8 @@ Game.Preload.prototype = {
         this.load.audio('shoot','assets/shoot.wav');
         this.load.audio('thud','assets/thud.wav');
         this.load.audio('enemy_die','assets/enemy_die.wav');
+        this.load.image('volume_underlay', 'assets/volumetext_underlay.png');
+        this.load.image('objective_underlay', 'assets/objective_underlay.png');
     },
 
     create: function() {
@@ -148,6 +150,8 @@ var enemy1;
 var enemy2;
 var enemySpeed = 75;
 var remainingText;
+var volumeOverall = 99;
+var volumeText;
 
 ///var button;
 
@@ -189,6 +193,8 @@ Game.Level1.prototype = {
             up: this.input.keyboard.addKey(Phaser.Keyboard.W),
             down: this.input.keyboard.addKey(Phaser.Keyboard.S),
             shoot: this.input.keyboard.addKey(Phaser.Keyboard.F),
+            volumeUp: this.input.keyboard.addKey(Phaser.Keyboard.P),
+            volumeDown: this.input.keyboard.addKey(Phaser.Keyboard.O),
         }
         cursors = game.input.keyboard.createCursorKeys();
 
@@ -231,12 +237,22 @@ Game.Level1.prototype = {
         this.enemyBar1 = this.add.bitmapData(32,8);
         game.add.sprite(enemy1.x - (this.enemyBar1.width*0.5), enemy1.y - 25, this.enemyBar1);
 
-        this.objectiveText = this.add.text(312, 100, 'Kill 10 enemies!', {fontSize: '32px', fill: '#000'});
+        this.objectiveText = this.add.text(300, 20, 'Kill 10 enemies!', {fontSize: '32px', fill: '#000'});
         this.objectiveText.fixedToCamera = true;
-        this.time.events.add(2000,function(){this.objectiveText.destroy();},this)
+        objective_underlay = this.add.sprite(270, 10, 'objective_underlay');
+        objective_underlay.fixedToCamera = true;
+        this.time.events.add(1500,function(){this.objectiveText.destroy();objective_underlay.destroy();},this)
 
         remainingText = this.add.text(15, 15, 'Remaining: ' + remaining.toString(), {fontSize: '16px', fill: '#000'});
         remainingText.fixedToCamera = true;
+
+        volumeText = this.add.text(312, 200, 'Volume: ' + volumeOverall.toString(), {fontSize: '32px', fill: '#000'});
+        volumeText.fixedToCamera = true;
+        volumeText.visible = false;
+
+        volume_underlay = this.add.sprite(255, 190, 'volume_underlay');
+        volume_underlay.fixedToCamera = true;
+        volume_underlay.visible = false;
 
 
     },
@@ -246,7 +262,7 @@ Game.Level1.prototype = {
         //Collision
         this.physics.arcade.collide(player,layer,function(){
             if(game.time.now > chillTime){
-                game.add.audio('thud').play();
+                game.add.audio('thud', volume=volumeOverall/100.0).play();
                 chillTime = game.time.now + 200;
             }
         });
@@ -262,7 +278,7 @@ Game.Level1.prototype = {
             } else {
                 bullet = bullets.getRandom()
             }
-            game.add.audio('enemy_die').play();
+            game.add.audio('enemy_die', volume=volumeOverall/100.0).play();
             bullet.kill();
             enemies.getClosestTo(bullet).kill();
             remaining -= 1;
@@ -311,35 +327,39 @@ Game.Level1.prototype = {
             shootbullet(game);
         }
 
+        if(controls.volumeDown.isDown){
+            if(volumeOverall<=100 && volumeOverall>0){
+                volumeOverall -= 1;
+                volumeText.visible = true;
+                volume_underlay.visible = true;
+                volumeText.text = 'Volume: ' + volumeOverall.toString();
+            } else {
+                volumeText.visible = true;
+                volume_underlay.visible = true;
+            }
+        }
+
+        if(controls.volumeUp.isDown){
+            if(volumeOverall<100 && volumeOverall>=0){
+                volumeOverall +=1;
+                volumeText.visible = true;
+                volume_underlay.visible = true;
+                volumeText.text = 'Volume: ' + volumeOverall.toString();
+            } else {
+                volumeText.visible = true;
+                volume_underlay.visible = true;
+            }
+        }
+
         //State checks
         if(remaining==0){
             this.game.state.start('Level2');
         }
 
-        //Enemy movement
-        //radians1 = game.physics.arcade.angleBetweenCenters(enemy1, player);
-        //game.physics.arcade.velocityFromRotation(radians1, 200, enemy1.body.velocity);
-        /*distance1_from_player = Math.sqrt(Math.abs((player.x - enemy1.x))+Math.abs((player.y - enemy1.y)));
-        if(distance1_from_player<=18){
-            enemyMovement(enemy1);
-            enemy1.seen = 1;
-        } else if(enemy1.seen==1){
-            enemyMovement(enemy1);
-        } else {
-            enemy1.body.velocity.x = 0;
-            enemy1.body.velocity.y = 0;
+        if(volumeText.visible==true){
+            this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
         }
 
-        distance2_from_player = Math.sqrt(Math.abs((player.x - enemy1.x))+Math.abs((player.y - enemy1.y)));
-        if(distance2_from_player<=18){
-            enemyMovement(enemy1);
-            enemy2.seen = 1;
-        } else if(enemy2.seen==1){
-            enemyMovement(enemy1);
-        } else {
-            enemy1.body.velocity.x = 0;
-            enemy1.body.velocity.y = 0;
-        }*/
         enemyTargetted(enemy1);
         enemyTargetted(enemy2);
         enemyTargetted(enemy3);
@@ -432,7 +452,8 @@ function shootbullet(game) {
         game.physics.arcade.moveToPointer(bullet, 2000);
         bullet.body.allowGravity = false;
         bullet.body.bounce.set(0.2);
-        game.add.audio('shoot').play();
+        game.add.audio('shoot',volume=volumeOverall/100.0).play();
+        console.log(volumeOverall);
     }
 }
 
