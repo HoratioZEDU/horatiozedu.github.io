@@ -46,7 +46,6 @@ Game.Boot.prototype = {
 
     //Assets we need for the loading screen
     preload: function() {
-        this.load.image('logo', 'assets/diamond.png');
         this.load.image('preloader', 'assets/redblock.png');
     },
 
@@ -62,9 +61,6 @@ Game.Preload = function(){
 
 Game.Preload.prototype = {
     preload: function() {
-        //Logo rendering
-        //this.splash = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'logo');
-        //this.splash.anchor.setTo(0.5);
 
         //Preload bar rendering
         this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY + 25, 'preloader');
@@ -74,13 +70,14 @@ Game.Preload.prototype = {
 
         //Asset loading
         this.load.tilemap('map', 'assets/maps/level1.csv');
-        this.load.image('tileset', 'assets/brownblock.png');
+        this.load.image('tileset', 'assets/tileset.png');
         this.load.image('player', 'assets/blackblock.png');
         this.load.spritesheet('buttons', 'assets/start_button.png', 193, 71);
         this.load.image('EnemyRed', 'assets/redblock.png');
         this.load.image('bullet', 'assets/bullet.png');
         this.load.audio('shoot','assets/shoot.wav');
         this.load.audio('thud','assets/thud.wav');
+        this.load.audio('enemy_die','assets/enemy_die.wav');
     },
 
     create: function() {
@@ -102,11 +99,10 @@ var button;
 Game.MainMenu.prototype = {
     create: function() {
 
-        startButton = this.add.button(this.world.centerX -95, this.world.centerY + 200, 'buttons', 
+        startButton = this.add.button(this.world.centerX -95, this.world.centerY - 100, 'buttons', 
                                   function(){
                                     this.game.state.start('Level1');
                                   },this,2,1,0);
-        console.log("huh");
 
     }
 }
@@ -114,7 +110,7 @@ Game.MainMenu.prototype = {
 //LEVEL 1 BELOW
 
 //Defining enemy red
-EnemyRed = function(index, game, x, y){
+/*EnemyRed = function(index, game, x, y){
 
     this.red = game.add.sprite(x,y,'EnemyRed');
     this.red.anchor.setTo(0.5,0.5);
@@ -123,14 +119,14 @@ EnemyRed = function(index, game, x, y){
     this.red.body.immovable = true;
     this.red.body.collideWorldBounds = true;
     this.red.body.allowGravity = false;
-
+*/
 
 
     //this.redTween = game.add.tween(this.red).to({
     //    y: 250,
     //}, 2000, 'Linear', true, 0, 250, true);
 
-}
+//}
 
 var enemy1; 
 
@@ -145,12 +141,13 @@ var playerSpeed = 325;
 var jumpTimer = 0;
 var shootTime = 90;
 var bullets;
-var remaining = 2;
+var remaining = 10;
 var chillTime = 200;
 var chillTimeBad = 200;
 var enemy1;
 var enemy2;
 var enemySpeed = 75;
+var remainingText;
 
 ///var button;
 
@@ -164,8 +161,9 @@ Game.Level1.prototype = {
         map = this.add.tilemap('map', 25, 25)
         map.addTilesetImage('tileset');
         layer = map.createLayer(0);
-        layer.resizeWorld();
-        remaining = 2;
+        //layer.resizeWorld();
+        remaining = 10;
+        game.world.setBounds(0, 0, 1925, 1450);
 
         //Collision/Physics 
         this.physics.arcade.gravity.y = 1400;
@@ -173,12 +171,11 @@ Game.Level1.prototype = {
         //map.setTileIndexCallback(2,this.resetPlayer,this);
 
         //Set player
-        player = this.add.sprite(100,300, 'player');
+        player = this.add.sprite(150,275, 'player');
         player.anchor.setTo(0.5);
         //player.animations.add('runRight',[6, 7, 8, 9], 5, true);
         //player.animations.add('runLeft',[0, 1, 2, 3], 5, true);
         this.physics.arcade.enable(player);
-        this.camera.follow(player);
         player.body.collideWorldBounds = true;
         game.physics.enable(player,Phaser.Physics.ARCADE);
         player.physicsBodyType = Phaser.Physics.ARCADE;
@@ -193,6 +190,7 @@ Game.Level1.prototype = {
             down: this.input.keyboard.addKey(Phaser.Keyboard.S),
             shoot: this.input.keyboard.addKey(Phaser.Keyboard.F),
         }
+        cursors = game.input.keyboard.createCursorKeys();
 
         //button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 
         //                      'buttons', function(){
@@ -200,10 +198,22 @@ Game.Level1.prototype = {
         //                      },this,2,1,0);
 
         
-        //Spawning bird
-        enemy1 = new EnemyRed(0, game, player.x+400, player.y-200);
-        enemy1.hp = 5;
-        enemy2 = new EnemyRed(0, game, 100, enemy1.y+400);
+        //Init red enemies
+        enemies = game.add.group();
+        enemies.enableBody = true;
+        enemies.setAll('anchor.x',0.5);
+        enemies.setAll('anchor.y',0.5);
+        enemies.setAll('allowGravity', false);
+        enemy1 = enemies.create(550, 75, 'EnemyRed');
+        enemy2 = enemies.create(100, 475, 'EnemyRed');
+        enemy3 = enemies.create(150, 100, 'EnemyRed');
+        enemy4 = enemies.create(862, 550, 'EnemyRed');
+        enemy5 = enemies.create(1658, 247, 'EnemyRed');
+        enemy6 = enemies.create(1808, 945, 'EnemyRed');
+        enemy7 = enemies.create(1125, 1187, 'EnemyRed');
+        enemy8 = enemies.create(841, 1308, 'EnemyRed');
+        enemy9 = enemies.create(467, 1173, 'EnemyRed');
+        enemy10 = enemies.create(259, 1320, 'EnemyRed');
 
         //Init bullets
         bullets = game.add.group();
@@ -216,8 +226,22 @@ Game.Level1.prototype = {
         bullets.setAll('checkWorldBounds', true);
         bullets.setAll('allowGravity', false);
 
+        //Heatlh bar of enemies
+        this.barProgress = enemy1.hp;
+        this.enemyBar1 = this.add.bitmapData(32,8);
+        game.add.sprite(enemy1.x - (this.enemyBar1.width*0.5), enemy1.y - 25, this.enemyBar1);
+
+        this.objectiveText = this.add.text(312, 100, 'Kill 10 enemies!', {fontSize: '32px', fill: '#000'});
+        this.objectiveText.fixedToCamera = true;
+        this.time.events.add(2000,function(){this.objectiveText.destroy();},this)
+
+        remainingText = this.add.text(15, 15, 'Remaining: ' + remaining.toString(), {fontSize: '16px', fill: '#000'});
+        remainingText.fixedToCamera = true;
+
 
     },
+
+
     update: function(game) {
         //Collision
         this.physics.arcade.collide(player,layer,function(){
@@ -226,29 +250,30 @@ Game.Level1.prototype = {
                 chillTime = game.time.now + 200;
             }
         });
-        this.physics.arcade.collide(enemy1.red,layer);
-        this.physics.arcade.collide(player,enemy1.red, function(){
+        this.physics.arcade.collide(enemies,layer);
+        this.physics.arcade.collide(player,enemies, function(){
+            game.camera.x = 0;
+            game.camera.y = 0;
             game.state.start('FailState');
         });
-        this.physics.arcade.collide(player,enemy2.red, function(){
-            game.state.start('FailState');
-        });
-        this.physics.arcade.collide(bullets,enemy1.red, function(){
-            enemy1.hp -= 1;
-            game.add.audio('shoot').play();
-            bullets.getFurthestFrom(player).kill();
-            if(enemy1.seen!=1){
-                enemy1.seen = 1;
+        this.physics.arcade.collide(bullets,enemies, function(){   
+            if(bullets.getFurthestFrom(player)!=null){
+                bullet = bullets.getFurthestFrom(player);
+            } else {
+                bullet = bullets.getRandom()
             }
-        });
-        this.physics.arcade.collide(bullets,enemy2.red, function(){
-            enemy2.red.kill();
+            game.add.audio('enemy_die').play();
+            bullet.kill();
+            enemies.getClosestTo(bullet).kill();
             remaining -= 1;
-            game.add.audio('shoot').play();
-            bullets.getFurthestFrom(player).kill();
+            remainingText.text = 'Remaining: ' + remaining.toString();
         });
         this.physics.arcade.collide(bullets,layer, function(){
-            bullets.getFurthestFrom(player).kill();
+            if(bullets.getFurthestFrom(player)!=null){
+                bullets.getFurthestFrom(player).kill();
+            } else {
+                bullets.getRandom().kill();
+            }
         });
 
         //Player movement
@@ -291,36 +316,62 @@ Game.Level1.prototype = {
             this.game.state.start('Level2');
         }
 
-        if(enemy1.hp<=0){
-            enemy1.red.kill();
-            remaining -= 1;
-        }
-
         //Enemy movement
         //radians1 = game.physics.arcade.angleBetweenCenters(enemy1, player);
-        //game.physics.arcade.velocityFromRotation(radians1, 200, enemy1.red.body.velocity);
-        distance1_from_player = Math.sqrt(Math.abs((player.x - enemy1.red.x))+Math.abs((player.y - enemy1.red.y)));
+        //game.physics.arcade.velocityFromRotation(radians1, 200, enemy1.body.velocity);
+        /*distance1_from_player = Math.sqrt(Math.abs((player.x - enemy1.x))+Math.abs((player.y - enemy1.y)));
         if(distance1_from_player<=18){
-            enemyMovement(enemy1.red);
+            enemyMovement(enemy1);
             enemy1.seen = 1;
         } else if(enemy1.seen==1){
-            enemyMovement(enemy1.red);
+            enemyMovement(enemy1);
         } else {
-            enemy1.red.body.velocity.x = 0;
-            enemy1.red.body.velocity.y = 0;
+            enemy1.body.velocity.x = 0;
+            enemy1.body.velocity.y = 0;
         }
 
-        distance2_from_player = Math.sqrt(Math.abs((player.x - enemy2.red.x))+Math.abs((player.y - enemy2.red.y)));
+        distance2_from_player = Math.sqrt(Math.abs((player.x - enemy1.x))+Math.abs((player.y - enemy1.y)));
         if(distance2_from_player<=18){
-            enemyMovement(enemy2.red);
+            enemyMovement(enemy1);
             enemy2.seen = 1;
         } else if(enemy2.seen==1){
-            enemyMovement(enemy2.red);
+            enemyMovement(enemy1);
         } else {
-            enemy2.red.body.velocity.x = 0;
-            enemy2.red.body.velocity.y = 0;
+            enemy1.body.velocity.x = 0;
+            enemy1.body.velocity.y = 0;
+        }*/
+        enemyTargetted(enemy1);
+        enemyTargetted(enemy2);
+        enemyTargetted(enemy3);
+        enemyTargetted(enemy4);
+        enemyTargetted(enemy5);
+        enemyTargetted(enemy6);
+        enemyTargetted(enemy7);
+        enemyTargetted(enemy8);
+        enemyTargetted(enemy9);
+        enemyTargetted(enemy10);
+        /*
+        this.barProgress = enemy1.hp;
+        this.enemyBar1.context.clearRect(0, 0, this.enemyBar1.width, this.enemyBar1.height);
+        this.enemyBar1.context.fillStyle = '#f00';
+        this.enemyBar1.context.fillRect(0, 0, enemy1.hp*8, 8);
+        this.enemyBar1.dirty = true;
+        */
+        if(Math.abs(this.camera.x + 800 - player.x)<400){
+            this.camera.x += 2000/Math.abs(this.camera.x + 800 - player.x);
         }
 
+        if(Math.abs(this.camera.x - player.x)<400){
+            this.camera.x -= 2000/Math.abs(this.camera.x - player.x);
+        }
+
+        if(Math.abs(this.camera.y + 600 - player.y)<400){
+            this.camera.y += 2000/Math.abs(this.camera.y + 600 - player.y);
+        }
+
+        if(Math.abs(this.camera.y - player.y)<400){
+            this.camera.y -= 2000/Math.abs(this.camera.y - player.y);
+        }
     },
 
     resetPlayer: function(game){
@@ -336,10 +387,10 @@ Game.Level2 = function(){};
 Game.Level2.prototype = {
     create: function(){
         this.stage.backgroundColor = "#000";
-        winText = this.game.add.text(this.world.centerX - 88, this.world.centerY - 200, 'Nicely done!!',
+        winText = this.game.add.text(312, 100, 'Nicely done!!',
                                         {  fontSize: '32px',
                                            fill: '#fff'});
-        again_button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 'buttons',
+        again_button = this.add.button(305, 500, 'buttons',
                                         function(){
                                             this.game.state.start('Level1');
                                         },this,2,1,0);
@@ -355,10 +406,10 @@ Game.FailState.prototype = {
 
     create: function(){
         this.stage.backgroundColor = "#000";
-        failText = this.game.add.text(this.world.centerX - 75, this.world.centerY - 200, 'You failed!', 
+        failText = this.game.add.text(325, 100, 'You failed!', 
                                         { fontSize: '32px',
                                           fill: '#fff'});
-        retry_button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 'buttons',
+        retry_button = this.add.button(305, 500, 'buttons',
                                         function(){
                                             this.game.state.start('Level1');
                                         },this,2,1,0);
@@ -380,11 +431,13 @@ function shootbullet(game) {
         bullet.reset(player.x, player.y);
         game.physics.arcade.moveToPointer(bullet, 2000);
         bullet.body.allowGravity = false;
-        bullet.body.bounce.set(0);
+        bullet.body.bounce.set(0.2);
+        game.add.audio('shoot').play();
     }
 }
 
 function enemyMovement(enemy){
+
     if(Math.abs(enemy.x - player.x) <= 2){
         enemy.x = player.x;
     } else if(enemy.x > player.x){
@@ -411,6 +464,19 @@ function enemyMovement(enemy){
 
     if(Math.abs(enemy.body.velocity.y) > enemySpeed){
         enemy.body.velocity.y = enemySpeed*(enemy.body.velocity.y/Math.abs(enemy.body.velocity.y));
+    }
+}
+
+function enemyTargetted(enemy){
+    enemy.distance_from_player = Math.sqrt(Math.abs((player.x - enemy.x))+Math.abs((player.y - enemy.y)));
+    if(enemy.distance_from_player<=18){
+        enemyMovement(enemy);
+        enemy.seen = 1;
+    } else if(enemy.seen==1){
+        enemyMovement(enemy);
+    } else {
+        enemy.body.velocity.x = 0;
+        enemy.body.velocity.y = 0;
     }
 }
 
