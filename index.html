@@ -5,10 +5,6 @@
     <meta charset = "UTF-8"/>
     <title>Test</title>
     <script src = "js/phaser.js"></script>
-    <script src = "js/Boot.js"></script>
-    <script src = "js/Preload.js"></script>
-    <script src = "js/Level1.js>"></script>
-    <script src = "js/MainMenu.js"></script>
 </head>
 
 
@@ -24,6 +20,7 @@ window.onload = function(){
         game.state.add('FailState',Game.FailState);
         game.state.add('Level1',Game.Level1);
         game.state.add('Level2',Game.Level2);
+        game.state.add('VictoryScreen',Game.VictoryScreen);
 
         game.state.start('Boot');
 
@@ -69,7 +66,8 @@ Game.Preload.prototype = {
         this.load.setPreloadSprite(this.preloadBar);
 
         //Asset loading
-        this.load.tilemap('map', 'assets/maps/level1.csv');
+        this.load.tilemap('level1', 'assets/maps/level1.csv');
+        this.load.tilemap('level2', 'assets/maps/level2.csv');
         this.load.image('tileset', 'assets/tileset.png');
         this.load.image('player', 'assets/blackblock.png');
         this.load.spritesheet('buttons', 'assets/start_button.png', 193, 71);
@@ -78,11 +76,15 @@ Game.Preload.prototype = {
         this.load.audio('shoot','assets/shoot.wav');
         this.load.audio('thud','assets/thud.wav');
         this.load.audio('enemy_die','assets/enemy_die.wav');
+        this.load.audio('shooting_enemy_die', 'assets/shooting_enemy_die.wav');
         this.load.image('volume_underlay', 'assets/volumetext_underlay.png');
         this.load.image('objective_underlay', 'assets/objective_underlay.png');
         this.load.image('still_bar_underlay', 'assets/still_bar_underlay.png');
+        this.load.image('remaining_underlay', 'assets/remaining_underlay.png');
         this.load.image('still_bar_rest', 'assets/still_bar_rest.png');
         this.load.image('still_bar_drain', 'assets/still_bar_drain.png');
+        this.load.image('enemy_shooting', 'assets/shooting_redblock.png');
+        this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
     },
 
     create: function() {
@@ -152,26 +154,37 @@ var chillTime = 200;
 var chillTimeBad = 200;
 var enemy1;
 var enemy2;
-var enemySpeed = 75;
+var enemySpeed = 100;
 var remainingText;
-var volumeOverall = 99;
+var volumeOverall = 50;
 var volumeText;
 var stillMax = 100;
 var stillBar;
 var stillBar_underlay;
 var stillValue = 100;
 var started = 0;
+var enemyShootTime = 90;
 
 ///var button;
 
 Game.Level1.prototype = {
 
     create: function(game) {
+
+        //Init bullets
+        initBullets(game);
+
+        //Init enemies
+        initRedEnemies(game);
+
+        //Set controls
+        initControls(game);
+
         //Background color definition
         this.stage.backgroundColor = '#d3d3d3';
 
         //Map initialization
-        map = this.add.tilemap('map', 25, 25)
+        map = this.add.tilemap('level1', 25, 25)
         map.addTilesetImage('tileset');
         layer = map.createLayer(0);
         //layer.resizeWorld();
@@ -195,18 +208,6 @@ Game.Level1.prototype = {
         player.body.velocity.x = 0;
         player.body.velocity.y = 0;
 
-        //Set controls
-        controls = {
-            right: this.input.keyboard.addKey(Phaser.Keyboard.A),
-            left: this.input.keyboard.addKey(Phaser.Keyboard.D),
-            up: this.input.keyboard.addKey(Phaser.Keyboard.W),
-            down: this.input.keyboard.addKey(Phaser.Keyboard.S),
-            shoot: this.input.keyboard.addKey(Phaser.Keyboard.F),
-            volumeUp: this.input.keyboard.addKey(Phaser.Keyboard.P),
-            volumeDown: this.input.keyboard.addKey(Phaser.Keyboard.O),
-        }
-        cursors = game.input.keyboard.createCursorKeys();
-
         //button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 
         //                      'buttons', function(){
         //                          console.log("ay");
@@ -214,11 +215,6 @@ Game.Level1.prototype = {
 
         
         //Init red enemies
-        enemies = game.add.group();
-        enemies.enableBody = true;
-        enemies.setAll('anchor.x',0.5);
-        enemies.setAll('anchor.y',0.5);
-        enemies.setAll('allowGravity', false);
         enemy1 = enemies.create(550, 75, 'EnemyRed');
         enemy2 = enemies.create(100, 475, 'EnemyRed');
         enemy3 = enemies.create(150, 100, 'EnemyRed');
@@ -230,161 +226,30 @@ Game.Level1.prototype = {
         enemy9 = enemies.create(467, 1173, 'EnemyRed');
         enemy10 = enemies.create(259, 1320, 'EnemyRed');
 
-        //Init bullets
-        bullets = game.add.group();
-        bullets.enableBody = true;
-        bullets.physicsBodyType = Phaser.Physics.ARCADE;
-        bullets.createMultiple(50, 'bullet');
-        bullets.setAll('anchor.x',0.5);
-        bullets.setAll('anchor.y',0.5);
-        bullets.setAll('outOfBoundsKill', true);
-        bullets.setAll('checkWorldBounds', true);
-        bullets.setAll('allowGravity', false);
-
         //Heatlh bar of enemies
-        this.barProgress = enemy1.hp;
-        this.enemyBar1 = this.add.bitmapData(32,8);
-        game.add.sprite(enemy1.x - (this.enemyBar1.width*0.5), enemy1.y - 25, this.enemyBar1);
+        //this.barProgress = enemy1.hp;
+        //this.enemyBar1 = this.add.bitmapData(32,8);
+        //game.add.sprite(enemy1.x - (this.enemyBar1.width*0.5), enemy1.y - 25, this.enemyBar1);
 
-        this.objectiveText = this.add.text(300, 20, 'Kill 10 enemies!', {fontSize: '32px', fill: '#000'});
-        this.objectiveText.fixedToCamera = true;
-        objective_underlay = this.add.sprite(270, 10, 'objective_underlay');
-        objective_underlay.fixedToCamera = true;
-        this.time.events.add(1500,function(){this.objectiveText.destroy();objective_underlay.destroy();},this)
-
-        remainingText = this.add.text(15, 15, 'Remaining: ' + remaining.toString(), {fontSize: '16px', fill: '#000'});
-        remainingText.fixedToCamera = true;
-
-        volumeText = this.add.text(312, 200, 'Volume: ' + volumeOverall.toString(), {fontSize: '32px', fill: '#000'});
-        volumeText.fixedToCamera = true;
-        volumeText.visible = false;
-
-        volume_underlay = this.add.sprite(255, 190, 'volume_underlay');
-        volume_underlay.fixedToCamera = true;
-        volume_underlay.visible = false;
-
-        stillBar_underlay = this.add.sprite(0, 540, 'still_bar_underlay');
-        stillBar_underlay.fixedToCamera = true;
-        stillValue = 100;
-        started = 0;
-
-        stillRest = this.add.sprite(0, 540, 'still_bar_rest');
-        stillRest.fixedToCamera = true;
-        stillRest.cropEnabled = true;
-        stillRest.crop.width = (stillValue / stillMax) * stillRest.width;
+        //Init UI
+        initUI(game, this);
 
     },
 
 
     update: function(game) {
         //Collision
-        this.physics.arcade.collide(player,layer,function(){
-            if(game.time.now > chillTime){
-                game.add.audio('thud', volume=volumeOverall/100.0).play();
-                chillTime = game.time.now + 200;
-            }
-        });
-        this.physics.arcade.collide(enemies,layer);
-        this.physics.arcade.collide(player,enemies, function(){
-            game.camera.x = 0;
-            game.camera.y = 0;
-            game.state.start('FailState');
-        });
-        this.physics.arcade.collide(bullets,enemies, function(){   
-            if(bullets.getFurthestFrom(player)!=null){
-                bullet = bullets.getFurthestFrom(player);
-            } else {
-                bullet = bullets.getRandom()
-            }
-            game.add.audio('enemy_die', volume=volumeOverall/100.0).play();
-            bullet.kill();
-            enemies.getClosestTo(bullet).kill();
-            remaining -= 1;
-            remainingText.text = 'Remaining: ' + remaining.toString();
-        });
-        this.physics.arcade.collide(bullets,layer, function(){
-            if(bullets.getFurthestFrom(player)!=null){
-                bullets.getFurthestFrom(player).kill();
-            } else {
-                bullets.getRandom().kill();
-            }
-        });
+        updtCollision(game);
 
         //Player movement
-        player.body.velocity.x = 0.8*player.body.velocity.x;
-        player.body.velocity.y = 0.8*player.body.velocity.y;
-        if(Math.abs(player.body.velocity.x) >= playerSpeed*2){
-            player.body.velocity.x = playerSpeed*2*(player.body.velocity.x/Math.abs(player.body.velocity.x));
-        }
-        if(Math.abs(player.body.velocity.y) >= playerSpeed*2){
-            player.body.velocity.y = playerSpeed*2*(player.body.velocity.y/Math.abs(player.body.velocity.y));
-        }
-        player.body.allowGravity = false;
-        player.body.bounce.set(0.8)
+        updtPlayercontrols(game);
 
-
-        if(controls.right.isDown){
-            player.body.velocity.x -= playerSpeed;
-            if(started!=1){
-                started = 1;
-            }
-        }
-
-        if(controls.left.isDown){
-            player.body.velocity.x += playerSpeed;
-            if(started!=1){
-                started = 1;
-            }
-        }
-
-        if(controls.up.isDown){
-            player.body.velocity.y -= playerSpeed;
-            if(started!=1){
-                started = 1;
-            }
-        }
-
-        if(controls.down.isDown){
-            player.body.velocity.y += playerSpeed;
-            if(started!=1){
-                started = 1;
-            }
-        }
-
-        if(game.input.activePointer.isDown){
-            shootbullet(game);
-            if(started!=1){
-                started = 1;
-            }
-        }
-
-        if(controls.volumeDown.isDown){
-            if(volumeOverall<=100 && volumeOverall>0){
-                volumeOverall -= 1;
-                volumeText.visible = true;
-                volume_underlay.visible = true;
-                volumeText.text = 'Volume: ' + volumeOverall.toString();
-            } else {
-                volumeText.visible = true;
-                volume_underlay.visible = true;
-            }
-        }
-
-        if(controls.volumeUp.isDown){
-            if(volumeOverall<100 && volumeOverall>=0){
-                volumeOverall +=1;
-                volumeText.visible = true;
-                volume_underlay.visible = true;
-                volumeText.text = 'Volume: ' + volumeOverall.toString();
-            } else {
-                volumeText.visible = true;
-                volume_underlay.visible = true;
-            }
-        }
+        //Camera movement
+        updtCameraMove(game);
 
         //State checks
         if(remaining==0){
-            this.game.state.start('Level2');
+            this.game.state.start('VictoryScreen');
         }
 
         if(volumeText.visible==true){
@@ -419,25 +284,8 @@ Game.Level1.prototype = {
         this.enemyBar1.context.fillRect(0, 0, enemy1.hp*8, 8);
         this.enemyBar1.dirty = true;
         */
-        if(Math.abs(this.camera.x + 800 - player.x)<400){
-            this.camera.x += 2000/Math.abs(this.camera.x + 800 - player.x);
-        }
 
-        if(Math.abs(this.camera.x - player.x)<400){
-            this.camera.x -= 2000/Math.abs(this.camera.x - player.x);
-        }
 
-        if(Math.abs(this.camera.y + 600 - player.y)<400){
-            this.camera.y += 2000/Math.abs(this.camera.y + 600 - player.y);
-        }
-
-        if(Math.abs(this.camera.y - player.y)<400){
-            this.camera.y -= 2000/Math.abs(this.camera.y - player.y);
-        }
-    },
-
-    resetPlayer: function(game){
-        game.state.start('FailState'); 
     }
 }; 
 
@@ -447,14 +295,96 @@ Game.Level1.prototype = {
 Game.Level2 = function(){};
 
 Game.Level2.prototype = {
+    create: function(game){
+
+        //Init bullets
+        initBullets(game);
+
+        //Init enemies
+        initRedEnemies(game);
+
+        //Set controls
+        initControls(game);
+
+        this.stage.backgroundColor = '#d3d3d3';
+
+        //Map initialization
+        map = this.add.tilemap('level2', 25, 25)
+        map.addTilesetImage('tileset');
+        layer = map.createLayer(0);
+        //layer.resizeWorld();
+        remaining = 10;
+        game.world.setBounds(0, 0, 1250, 1250);
+
+        //Collision/Physics 
+        this.physics.arcade.gravity.y = 1400;
+        map.setCollisionBetween(0,0);
+        //map.setTileIndexCallback(2,this.resetPlayer,this);
+
+        //Set player
+        player = this.add.sprite(150,100, 'player');
+        player.anchor.setTo(0.5);
+        //player.animations.add('runRight',[6, 7, 8, 9], 5, true);
+        //player.animations.add('runLeft',[0, 1, 2, 3], 5, true);
+        this.physics.arcade.enable(player);
+        player.body.collideWorldBounds = true;
+        game.physics.enable(player,Phaser.Physics.ARCADE);
+        player.physicsBodyType = Phaser.Physics.ARCADE;
+        player.body.velocity.x = 0;
+        player.body.velocity.y = 0;
+
+        //Init UI
+        initUI(game, this);
+
+        enemy1 = shooting_enemies.create(241, 682, 'enemy_shooting');
+        enemy2 = shooting_enemies.create(693, 247, 'enemy_shooting');
+
+    },
+
+    update: function(game){
+
+        //Collision
+        updtCollision(game);
+
+        //Player movement
+        updtPlayercontrols(game);
+
+        //Camera movement
+        updtCameraMove(game);
+
+        if(volumeText.visible==true){
+            this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
+        }
+
+        if(!controls.down.isDown && !controls.right.isDown && !controls.left.isDown && !controls.up.isDown && started == 1){
+            stillValue -= 0.5;   
+            //stillRest.crop.width = (stillValue / stillMax) * 400;
+            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+            stillRest.crop(cropRectangle);
+            stillTime = game.time.now + 200;
+            if(stillValue<=0){
+                this.state.start('FailState');
+            }
+        }
+
+        shootingEnemyTargetted(game, enemy1);
+        shootingEnemyTargetted(game, enemy2);
+
+
+    }
+}
+
+Game.VictoryScreen = function(){};
+
+Game.VictoryScreen.prototype = {
     create: function(){
         this.stage.backgroundColor = "#000";
         winText = this.game.add.text(312, 100, 'Nicely done!!',
                                         {  fontSize: '32px',
                                            fill: '#fff'});
-        again_button = this.add.button(305, 500, 'buttons',
+        next_level_button = this.add.button(305, 500, 'buttons',
                                         function(){
-                                            this.game.state.start('Level1');
+                                            this.game.state.start('Level2');
                                         },this,2,1,0);
     }
 }
@@ -495,6 +425,17 @@ function shootbullet(game) {
         bullet.body.allowGravity = false;
         bullet.body.bounce.set(0.2);
         game.add.audio('shoot',volume=volumeOverall/100.0).play();
+    }
+}
+
+function enemyShoot(game, enemy){
+    if(game.time.now > enemyShootTime) {
+        enemyShootTime = game.time.now + 1000;
+        var enemyBullet = enemyBullets.getFirstDead();
+        enemyBullet.reset(enemy.x, enemy.y);
+        game.physics.arcade.moveToObject(enemyBullet, player, 500);
+        enemyBullet.body.allowGravity = false;
+        enemyBullet.body.bounce.set(0.2);
     }
 }
 
@@ -542,8 +483,256 @@ function enemyTargetted(enemy){
     }
 }
 
+function shootingEnemyTargetted(game, enemy){
+    enemy.distance_from_player = Math.sqrt(Math.abs((player.x - enemy.x))+Math.abs((player.y - enemy.y)));
+    if(enemy.distance_from_player<=18 && enemy.visible==true){
+        enemyMovement(enemy);
+        enemy.seen = 1;
+        enemyShoot(game, enemy);
+    } else if (enemy.seen==1 && enemy.visible==true){
+        enemyMovement(enemy);
+    } else {
+        enemy.body.velocity.x = 0;
+        enemy.body.velocity.y = 0;
+    }
+}
 
+function initRedEnemies(game){
+    enemies = game.add.group();
+    enemies.enableBody = true;
+    enemies.setAll('anchor.x',0.5);
+    enemies.setAll('anchor.y',0.5);
+    enemies.setAll('allowGravity', false);
 
+    shooting_enemies = game.add.group();
+    shooting_enemies.enableBody = true;
+    shooting_enemies.setAll('anchor.x',0.5);
+    shooting_enemies.setAll('anchor.y',0.5);
+    shooting_enemies.setAll('allowGravity',false);
+}
+
+function initBullets(game){
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    bullets.createMultiple(50, 'bullet');
+    bullets.setAll('anchor.x',0.5);
+    bullets.setAll('anchor.y',0.5);
+    bullets.setAll('outOfBoundsKill', true);
+    bullets.setAll('checkWorldBounds', true);
+    bullets.setAll('allowGravity', false);
+
+    enemyBullets = game.add.group();
+    enemyBullets.enableBody = true;
+    enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+    enemyBullets.createMultiple(50, 'enemy_bullet');
+    enemyBullets.setAll('anchor.x',0.5);
+    enemyBullets.setAll('anchor.y',0.5);
+    enemyBullets.setAll('outOfBoundsKill', true);
+    enemyBullets.setAll('checkWorldBounds', true);
+    enemyBullets.setAll('allowGravity', false);
+
+}
+
+function initUI(game){
+    objective_underlay = game.add.sprite(270, 10, 'objective_underlay');
+    objective_underlay.fixedToCamera = true;
+    this.objectiveText = game.add.text(300, 20, 'Kill ' + remaining + ' enemies!', {fontSize: '32px', fill: '#000'});
+    this.objectiveText.fixedToCamera = true;
+    game.time.events.add(1500,function(){this.objectiveText.destroy();objective_underlay.destroy();},this)
+
+    remaining_underlay = game.add.sprite(0, 0, 'remaining_underlay');
+    remaining_underlay.fixedToCamera = true;
+
+    remainingText = game.add.text(17, 12, 'Remaining: ' + remaining.toString(), {fontSize: '16px', fill: '#000'});
+    remainingText.fixedToCamera = true;
+
+    volume_underlay = game.add.sprite(255, 190, 'volume_underlay');
+    volume_underlay.fixedToCamera = true;
+    volume_underlay.visible = false;
+
+    volumeText = game.add.text(312, 200, 'Volume: ' + volumeOverall.toString(), {fontSize: '32px', fill: '#000'});
+    volumeText.fixedToCamera = true;
+    volumeText.visible = false;
+
+    stillBar_underlay = game.add.sprite(0, 540, 'still_bar_underlay');
+    stillBar_underlay.fixedToCamera = true;
+    stillValue = 100;
+    started = 0;
+
+    stillRest = game.add.sprite(0, 540, 'still_bar_rest');
+    stillRest.fixedToCamera = true;
+    stillRest.cropEnabled = true;
+    stillRest.crop.width = (stillValue / stillMax) * stillRest.width;
+}
+
+function initControls(game){
+    controls = {
+        right: game.input.keyboard.addKey(Phaser.Keyboard.A),
+        left: game.input.keyboard.addKey(Phaser.Keyboard.D),
+        up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+        down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+        shoot: game.input.keyboard.addKey(Phaser.Keyboard.F),
+        volumeUp: game.input.keyboard.addKey(Phaser.Keyboard.P),
+        volumeDown: game.input.keyboard.addKey(Phaser.Keyboard.O),
+    }
+    cursors = game.input.keyboard.createCursorKeys();
+}
+
+function updtPlayercontrols(game){
+    player.body.velocity.x = 0.8*player.body.velocity.x;
+    player.body.velocity.y = 0.8*player.body.velocity.y;
+    if(Math.abs(player.body.velocity.x) >= playerSpeed*2){
+        player.body.velocity.x = playerSpeed*2*(player.body.velocity.x/Math.abs(player.body.velocity.x));
+    }
+    if(Math.abs(player.body.velocity.y) >= playerSpeed*2){
+        player.body.velocity.y = playerSpeed*2*(player.body.velocity.y/Math.abs(player.body.velocity.y));
+    }
+    player.body.allowGravity = false;
+    player.body.bounce.set(0.8)
+
+    if(controls.right.isDown){
+        player.body.velocity.x -= playerSpeed;
+        if(started!=1){
+            started = 1;
+        }
+    }
+
+    if(controls.left.isDown){
+        player.body.velocity.x += playerSpeed;
+        if(started!=1){
+            started = 1;
+        }
+    }
+
+    if(controls.up.isDown){
+        player.body.velocity.y -= playerSpeed;
+        if(started!=1){
+            started = 1;
+        }
+    }
+
+    if(controls.down.isDown){
+        player.body.velocity.y += playerSpeed;
+        if(started!=1){
+            started = 1;
+        }
+    }
+
+    if(game.input.activePointer.isDown){
+        shootbullet(game);
+        if(started!=1){
+            started = 1;
+        }
+        console.log(player.x);
+        console.log(player.y);
+    }
+
+    if(controls.volumeDown.isDown){
+        if(volumeOverall<=100 && volumeOverall>0){
+            volumeOverall -= 1;
+            volumeText.visible = true;
+            volume_underlay.visible = true;
+            volumeText.text = 'Volume: ' + volumeOverall.toString();
+        } else {
+            volumeText.visible = true;
+            volume_underlay.visible = true;
+        }
+    }
+
+    if(controls.volumeUp.isDown){
+        if(volumeOverall<100 && volumeOverall>=0){
+            volumeOverall +=1;
+            volumeText.visible = true;
+            volume_underlay.visible = true;
+            volumeText.text = 'Volume: ' + volumeOverall.toString();
+        } else {
+            volumeText.visible = true;
+            volume_underlay.visible = true;
+        }
+    }
+}
+
+function updtCollision(game){
+    game.physics.arcade.collide(player,layer,function(){
+        if(game.time.now > chillTime){
+            game.add.audio('thud', volume=volumeOverall/100.0).play();
+            chillTime = game.time.now + 200;
+        }
+    });
+    game.physics.arcade.collide(enemies,layer);
+    game.physics.arcade.collide(player,enemies, function(){
+        game.camera.x = 0;
+        game.camera.y = 0;
+        game.state.start('FailState');
+    });
+    game.physics.arcade.collide(bullets,enemies, function(){   
+        if(bullets.getFurthestFrom(player)!=null){
+            bullet = bullets.getFurthestFrom(player);
+        } else {
+            bullet = bullets.getRandom()
+        }
+        game.add.audio('enemy_die', volume=volumeOverall/100.0).play();
+        bullet.kill();
+        enemies.getClosestTo(bullet).kill();
+        remaining -= 1;
+        remainingText.text = 'Remaining: ' + remaining.toString();
+    });
+    game.physics.arcade.collide(shooting_enemies,layer);
+    game.physics.arcade.collide(player,shooting_enemies);
+    game.physics.arcade.collide(player,enemyBullets, function(){
+        if(enemyBullets.getClosestTo(player)!=null){
+            enemyBullet = enemyBullets.getClosestTo(player);
+        } else {
+            enemyBullet = enemyBullets.getRandom();
+        }
+        enemyBullet.kill();
+        stillValue -= 10;
+        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+        stillRest.crop(cropRectangle);
+        game.add.audio('shooting_enemy_die', volume=volumeOverall/100.0).play();
+        if(stillValue<=0){
+            game.state.start('FailState');
+        }
+    })
+    game.physics.arcade.collide(bullets,shooting_enemies, function(){
+        if(bullets.getFurthestFrom(player)!=null){
+            bullet = bullets.getFurthestFrom(player);
+        } else {
+            bullet = bullets.getRandom();
+        }
+        game.add.audio('enemy_die', volume=volumeOverall/100.0).play();
+        bullet.kill();
+        shooting_enemies.getClosestTo(bullet).kill();
+        remaining -= 1;
+        remainingText.text = 'Remaining: ' + remaining.toString();
+    });
+    game.physics.arcade.collide(bullets,layer, function(){
+        if(bullets.getFurthestFrom(player)!=null){
+            bullets.getFurthestFrom(player).kill();
+        } else {
+            bullets.getRandom().kill();
+        }
+    });
+}
+
+function updtCameraMove(game){
+    if(Math.abs(game.camera.x + 800 - player.x)<400){
+        game.camera.x += 2000/Math.abs(game.camera.x + 800 - player.x);
+    }
+
+    if(Math.abs(game.camera.x - player.x)<400){
+        game.camera.x -= 2000/Math.abs(game.camera.x - player.x);
+    }
+
+    if(Math.abs(game.camera.y + 600 - player.y)<400){
+        game.camera.y += 2000/Math.abs(game.camera.y + 600 - player.y);
+    }
+ 
+    if(Math.abs(game.camera.y - player.y)<400){
+        game.camera.y -= 2000/Math.abs(game.camera.y - player.y);
+    }
+}
 
     </script>
 </body>
