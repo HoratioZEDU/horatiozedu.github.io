@@ -80,6 +80,9 @@ Game.Preload.prototype = {
         this.load.audio('enemy_die','assets/enemy_die.wav');
         this.load.image('volume_underlay', 'assets/volumetext_underlay.png');
         this.load.image('objective_underlay', 'assets/objective_underlay.png');
+        this.load.image('still_bar_underlay', 'assets/still_bar_underlay.png');
+        this.load.image('still_bar_rest', 'assets/still_bar_rest.png');
+        this.load.image('still_bar_drain', 'assets/still_bar_drain.png');
     },
 
     create: function() {
@@ -142,6 +145,7 @@ var controls = {};
 var playerSpeed = 325; 
 var jumpTimer = 0;
 var shootTime = 90;
+var stillTime = 90;
 var bullets;
 var remaining = 10;
 var chillTime = 200;
@@ -152,6 +156,11 @@ var enemySpeed = 75;
 var remainingText;
 var volumeOverall = 99;
 var volumeText;
+var stillMax = 100;
+var stillBar;
+var stillBar_underlay;
+var stillValue = 100;
+var started = 0;
 
 ///var button;
 
@@ -254,6 +263,14 @@ Game.Level1.prototype = {
         volume_underlay.fixedToCamera = true;
         volume_underlay.visible = false;
 
+        stillBar_underlay = this.add.sprite(0, 540, 'still_bar_underlay');
+        stillBar_underlay.fixedToCamera = true;
+        stillValue = 100;
+
+        stillRest = this.add.sprite(0, 540, 'still_bar_rest');
+        stillRest.fixedToCamera = true;
+        stillRest.cropEnabled = true;
+        stillRest.crop.width = (stillValue / stillMax) * stillRest.width;
 
     },
 
@@ -306,25 +323,38 @@ Game.Level1.prototype = {
 
 
         if(controls.right.isDown){
-        //  player.animations.play('runRight');
             player.body.velocity.x -= playerSpeed;
+            if(started!=1){
+                started = 1;
+            }
         }
 
         if(controls.left.isDown){
-        //  player.animations.play('runLeft');
             player.body.velocity.x += playerSpeed;
+            if(started!=1){
+                started = 1;
+            }
         }
 
         if(controls.up.isDown){
             player.body.velocity.y -= playerSpeed;
+            if(started!=1){
+                started = 1;
+            }
         }
 
         if(controls.down.isDown){
             player.body.velocity.y += playerSpeed;
+            if(started!=1){
+                started = 1;
+            }
         }
 
         if(game.input.activePointer.isDown){
             shootbullet(game);
+            if(started!=1){
+                started = 1;
+            }
         }
 
         if(controls.volumeDown.isDown){
@@ -358,6 +388,17 @@ Game.Level1.prototype = {
 
         if(volumeText.visible==true){
             this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
+        }
+
+        if(!controls.down.isDown && !controls.right.isDown && !controls.left.isDown && !controls.up.isDown && started == 1){
+            stillValue -= 0.5;   
+            //stillRest.crop.width = (stillValue / stillMax) * 400;
+            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+            stillRest.crop(cropRectangle);
+            stillTime = game.time.now + 200;
+            if(stillValue<=0){
+                this.state.start('FailState');
+            }
         }
 
         enemyTargetted(enemy1);
@@ -453,7 +494,6 @@ function shootbullet(game) {
         bullet.body.allowGravity = false;
         bullet.body.bounce.set(0.2);
         game.add.audio('shoot',volume=volumeOverall/100.0).play();
-        console.log(volumeOverall);
     }
 }
 
