@@ -77,6 +77,7 @@ Game.Preload.prototype = {
         this.load.audio('thud','assets/thud.wav');
         this.load.audio('enemy_die','assets/enemy_die.wav');
         this.load.audio('shooting_enemy_die', 'assets/shooting_enemy_die.wav');
+        this.load.audio('music', 'assets/music_eric_skiff.wav');
         this.load.image('volume_underlay', 'assets/volumetext_underlay.png');
         this.load.image('objective_underlay', 'assets/objective_underlay.png');
         this.load.image('still_bar_underlay', 'assets/still_bar_underlay.png');
@@ -386,6 +387,7 @@ Game.VictoryScreen.prototype = {
                                         function(){
                                             this.game.state.start('Level2');
                                         },this,2,1,0);
+        this.sound.stopAll();
     }
 }
 
@@ -405,6 +407,7 @@ Game.FailState.prototype = {
                                         function(){
                                             this.game.state.start('Level1');
                                         },this,2,1,0);
+        this.sound.stopAll();
     }
 }
 
@@ -564,6 +567,8 @@ function initUI(game){
     stillRest.fixedToCamera = true;
     stillRest.cropEnabled = true;
     stillRest.crop.width = (stillValue / stillMax) * stillRest.width;
+
+    game.add.audio('music', volume=volumeOverall/100.0).play();
 }
 
 function initControls(game){
