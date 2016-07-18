@@ -22,6 +22,8 @@ window.onload = function(){
         game.state.add('LevelSelect',Game.LevelSelect);
         game.state.add('Level1',Game.Level1);
         game.state.add('Level2',Game.Level2);
+        game.state.add('Level3',Game.Level3);
+        game.state.add('Level4',Game.Level4);
 
         game.state.start('Boot');
 
@@ -69,14 +71,19 @@ Game.Preload.prototype = {
         //Asset loading
         this.load.tilemap('level1', 'assets/maps/level1.csv');
         this.load.tilemap('level2', 'assets/maps/level2.csv');
+        this.load.tilemap('level3', 'assets/maps/level3.csv');
+        this.load.tilemap('level4', 'assets/maps/level4.csv');
         this.load.image('tileset', 'assets/tileset.png');
         this.load.image('player', 'assets/blackblock.png');
         this.load.spritesheet('buttons', 'assets/start_button.png', 193, 71);
         this.load.spritesheet('level_select', 'assets/level_select.png', 193, 71);
         this.load.spritesheet('level1_button', 'assets/level1_button.png', 193, 71);
         this.load.spritesheet('level2_button', 'assets/level2_button.png', 193, 71);
+        this.load.spritesheet('level3_button', 'assets/level3_button.png', 193, 71);
+        this.load.spritesheet('level4_button', 'assets/level4_button.png', 193, 71);
         this.load.spritesheet('menu_button', 'assets/back_to_menu.png', 193, 71);
         this.load.spritesheet('next_level', 'assets/next_level.png', 193, 71);
+        this.load.spritesheet('retry', 'assets/retry.png', 193, 71);
         this.load.image('EnemyRed', 'assets/redblock.png');
         this.load.image('bullet', 'assets/bullet.png');
         this.load.audio('shoot','assets/shoot.wav');
@@ -177,6 +184,7 @@ var started = 0;
 var enemyShootTime = 90;
 var bgmusic;
 var next_level = 1;
+var stillTimer;
 
 if(localStorage.getItem('reached-level')!=null) {
     var highestLevel = parseInt(localStorage.getItem('reached-level'));
@@ -189,9 +197,6 @@ if(localStorage.getItem('reached-level')!=null) {
 Game.Level1.prototype = {
 
     create: function(game) {
-
-        //Init bullets
-        initBullets(game);
 
         //Set controls
         initControls(game);
@@ -250,6 +255,9 @@ Game.Level1.prototype = {
         //this.enemyBar1 = this.add.bitmapData(32,8);
         //game.add.sprite(enemy1.x - (this.enemyBar1.width*0.5), enemy1.y - 25, this.enemyBar1);
 
+        //Init bullets
+        initBullets(game); 
+
         //Init UI
         initUI(game, this);
 
@@ -276,29 +284,11 @@ Game.Level1.prototype = {
             }
         }
 
-        console.log(localStorage.getItem("reached-level"));
-
         if(volumeText.visible==true){
             this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
         }
-        if(!controls.down.isDown && !controls.right.isDown && !controls.left.isDown && !controls.up.isDown && started == 1){
-            stillValue -= 0.5;   
-            //stillRest.crop.width = (stillValue / stillMax) * 400;
-            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
-            stillRest.crop(cropRectangle);
-            stillTime = game.time.now + 200;
-            if(stillValue<=0){
-                this.state.start('FailState');
-            }
-        } else if(Math.abs(player.body.velocity.x)<1&& Math.abs(player.body.velocity.y)<1&&started==1){
-            stillValue -= 0.5;
-            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
-            stillRest.crop(cropRectangle);
-            stillTime = game.time.now + 200;
-            if(stillValue<=0){
-                this.state.start('FailState');
-            }
-        }
+        
+        updtStillBarCheck(game);
 
 
         enemyTargetted(enemy1);
@@ -311,6 +301,14 @@ Game.Level1.prototype = {
         enemyTargetted(enemy8);
         enemyTargetted(enemy9);
         enemyTargetted(enemy10);
+
+        enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+        shooting_enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+
         /*
         this.barProgress = enemy1.hp;
         this.enemyBar1.context.clearRect(0, 0, this.enemyBar1.width, this.enemyBar1.height);
@@ -330,9 +328,6 @@ Game.Level2 = function(){};
 
 Game.Level2.prototype = {
     create: function(game){
-
-        //Init bullets
-        initBullets(game); 
 
         //Set controls
         initControls(game);
@@ -367,6 +362,9 @@ Game.Level2.prototype = {
         //Init enemies
         initRedEnemies(game);
 
+        //Init bullets
+        initBullets(game); 
+
         //Init UI
         initUI(game, this);
 
@@ -378,6 +376,13 @@ Game.Level2.prototype = {
         enemy6 = shooting_enemies.create(875, 1000, 'enemy_shooting');
         enemy7 = shooting_enemies.create(175, 875, 'enemy_shooting');
         enemy8 = enemies.create(1075, 700, 'EnemyRed');
+
+        enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+        shooting_enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
 
         next_level = 2;
 
@@ -395,7 +400,7 @@ Game.Level2.prototype = {
         updtCameraMove(game);
 
         if(remaining==0){
-            next_level = 3
+            next_level = 3;
             this.game.state.start('VictoryScreen');
             if(2>=highestLevel){
                 highestLevel = 2;
@@ -407,24 +412,7 @@ Game.Level2.prototype = {
             this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
         }
 
-        if(!controls.down.isDown && !controls.right.isDown && !controls.left.isDown && !controls.up.isDown && started == 1){
-            stillValue -= 0.5;   
-            //stillRest.crop.width = (stillValue / stillMax) * 400;
-            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
-            stillRest.crop(cropRectangle);
-            stillTime = game.time.now + 200;
-            if(stillValue<=0){
-                this.state.start('FailState');
-            }
-        } else if(Math.abs(player.body.velocity.x)<0.1&& Math.abs(player.body.velocity.y)<0.1&&started==1){
-            stillValue -= 0.5;
-            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
-            stillRest.crop(cropRectangle);
-            stillTime = game.time.now + 200;
-            if(stillValue<=0){
-                this.state.start('FailState');
-            }
-        }
+        updtStillBarCheck(game);
 
         shootingEnemyTargetted(game, enemy1);
         shootingEnemyTargetted(game, enemy2);
@@ -437,6 +425,233 @@ Game.Level2.prototype = {
 
 
 
+    }
+}
+
+Game.Level3 = function(){};
+
+Game.Level3.prototype = {
+    create: function(game){
+
+        //Set controls
+        initControls(game);
+
+        this.stage.backgroundColor = '#d3d3d3';
+
+        //Map initialization
+        map = this.add.tilemap('level3', 25, 25)
+        map.addTilesetImage('tileset');
+        layer = map.createLayer(0);
+        //layer.resizeWorld();
+        remaining = 19;
+        game.world.setBounds(0, 0, 104*25, 54*25);
+
+        //Collision/Physics 
+        this.physics.arcade.gravity.y = 1400;
+        map.setCollisionBetween(0,0);
+        //map.setTileIndexCallback(2,this.resetPlayer,this);
+
+        //Set player
+        player = this.add.sprite(150,100, 'player');
+        player.anchor.setTo(0.5);
+        //player.animations.add('runRight',[6, 7, 8, 9], 5, true);
+        //player.animations.add('runLeft',[0, 1, 2, 3], 5, true);
+        this.physics.arcade.enable(player);
+        player.body.collideWorldBounds = true;
+        game.physics.enable(player,Phaser.Physics.ARCADE);
+        player.physicsBodyType = Phaser.Physics.ARCADE;
+        player.body.velocity.x = 0;
+        player.body.velocity.y = 0;
+        
+        //Init enemies
+        initRedEnemies(game);
+
+        enemy1 = enemies.create(28*25, 11*25, 'EnemyRed');
+        enemy2 = shooting_enemies.create(32*25, 19*25, 'enemy_shooting');
+        enemy3 = shooting_enemies.create(40*25, 5*25, 'enemy_shooting');
+        enemy4 = shooting_enemies.create(48*25, 5*25, 'enemy_shooting');
+        enemy5 = shooting_enemies.create(54*25, 22*25, 'enemy_shooting');
+        enemy6 = enemies.create(60*25, 19*25, 'EnemyRed');
+        enemy7 = enemies.create(65*25, 21*25, 'EnemyRed');
+        enemy8 = shooting_enemies.create(73*25, 5*25, 'enemy_shooting');
+        enemy9 = shooting_enemies.create(87*25, 11*25, 'enemy_shooting');
+        enemy10 = enemies.create(89*25, 45*25, 'EnemyRed');
+        enemy11 = enemies.create(93*25, 48*25, 'EnemyRed');
+        enemy12 = enemies.create(9*25, 28*25, 'EnemyRed');
+        enemy13 = enemies.create(18*25, 35*25, 'EnemyRed');
+        enemy14 = enemies.create(6*25, 40*25, 'EnemyRed');
+        enemy15 = enemies.create(12*25, 45*25, 'EnemyRed');
+        enemy16 = enemies.create(28*25, 45*25, 'EnemyRed');
+        enemy17 = enemies.create(35*25, 37*25, 'EnemyRed');
+        enemy18 = shooting_enemies.create(47*25, 46*25, 'enemy_shooting');
+        enemy19 = shooting_enemies.create(59*25, 48*25, 'enemy_shooting');
+
+        enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+        shooting_enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+
+        //Init bullets
+        initBullets(game); 
+
+        //Init UI
+        initUI(game, this);        
+
+        next_level = 3;
+    },
+
+    update: function(game){
+        //Collision
+        updtCollision(game);
+
+        //Player movement
+        updtPlayercontrols(game);
+
+        //Camera movement
+        updtCameraMove(game);
+
+        if(remaining==0){
+            next_level = 4
+            this.game.state.start('VictoryScreen');
+            if(3>=highestLevel){
+                highestLevel = 3;
+                localStorage.setItem("reached-level", highestLevel.toString());
+            }
+        }
+
+        if(volumeText.visible==true){
+            this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
+        }
+
+        updtStillBarCheck(game);
+
+        enemyTargetted(enemy1);
+        enemyTargetted(enemy6);
+        enemyTargetted(enemy7);
+        enemyTargetted(enemy10);
+        enemyTargetted(enemy11);
+        enemyTargetted(enemy12);
+        enemyTargetted(enemy13);
+        enemyTargetted(enemy14);
+        enemyTargetted(enemy15);
+        enemyTargetted(enemy16);
+        enemyTargetted(enemy17);
+        shootingEnemyTargetted(game, enemy2);
+        shootingEnemyTargetted(game, enemy3);
+        shootingEnemyTargetted(game, enemy4);
+        shootingEnemyTargetted(game, enemy5);
+        shootingEnemyTargetted(game, enemy8);
+        shootingEnemyTargetted(game, enemy9);
+        shootingEnemyTargetted(game, enemy18);
+        shootingEnemyTargetted(game, enemy19);
+
+    }
+}
+
+Game.Level4 = function(){};
+
+Game.Level4.prototype = {
+    create: function(game){
+
+        //Set controls
+        initControls(game);
+
+        this.stage.backgroundColor = '#d3d3d3';
+
+        //Map initialization
+        map = this.add.tilemap('level4', 25, 25)
+        map.addTilesetImage('tileset');
+        layer = map.createLayer(0);
+        //layer.resizeWorld();
+        remaining = 15;
+        game.world.setBounds(0, 0, 70*25, 50*25);
+
+        //Collision/Physics 
+        this.physics.arcade.gravity.y = 1400;
+        map.setCollisionBetween(0,0);
+        //map.setTileIndexCallback(2,this.resetPlayer,this);
+
+        //Set player
+        player = this.add.sprite(175,175, 'player');
+        player.anchor.setTo(0.5);
+        //player.animations.add('runRight',[6, 7, 8, 9], 5, true);
+        //player.animations.add('runLeft',[0, 1, 2, 3], 5, true);
+        this.physics.arcade.enable(player);
+        player.body.collideWorldBounds = true;
+        game.physics.enable(player,Phaser.Physics.ARCADE);
+        player.physicsBodyType = Phaser.Physics.ARCADE;
+        player.body.velocity.x = 0;
+        player.body.velocity.y = 0;
+        
+        //Init enemies
+        initRedEnemies(game);
+
+        enemy1 = enemies.create(9*25, 32*25, 'EnemyRed');
+        enemy2 = enemies.create(14*25, 25*25, 'EnemyRed');
+        enemy3 = enemies.create(16*25, 13*25, 'EnemyRed');
+        enemy4 = enemies.create(25*25, 23*25, 'EnemyRed');
+        enemy5 = enemies.create(26*25, 6*25, 'EnemyRed');
+        enemy6 = enemies.create(39*25, 6*25, 'EnemyRed');
+        enemy7 = enemies.create(51*25, 6*25, 'EnemyRed');
+        enemy8 = enemies.create(51*25, 18*25, 'EnemyRed');
+        enemy9 = enemies.create(50*25, 29*25, 'EnemyRed');
+        enemy11 = shooting_enemies.create(33*25, 34*25, 'enemy_shooting');
+        enemy12 = shooting_enemies.create(35*25, 38*25, 'enemy_shooting');
+        enemy13 = shooting_enemies.create(39*25, 34*25, 'enemy_shooting');
+        enemy14 = shooting_enemies.create(39*25, 41*25, 'enemy_shooting');
+        enemy15 = shooting_enemies.create(36*25, 22*25, 'enemy_shooting');
+        enemy16 = shooting_enemies.create(36*25, 15*25, 'enemy_shooting');
+
+        enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+        shooting_enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+
+
+        //Init bullets
+        initBullets(game); 
+
+        //Init UI
+        initUI(game, this);        
+
+        next_level = 4;
+    }, 
+
+    update: function(game){
+        //Collision
+        updtCollision(game);
+
+        //Player movement
+        updtPlayercontrols(game);
+
+        //Camera movement
+        updtCameraMove(game);
+
+        if(remaining==0){
+            next_level = 5;
+            this.game.state.start('VictoryScreen');
+            if(4>=highestLevel){
+                highestLevel = 4;
+                localStorage.setItem("reached-level", highestLevel.toString());
+            }
+        }
+
+        if(volumeText.visible==true){
+            this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
+        }
+
+        enemies.forEach(function(enemy){
+            enemyTargetted(enemy);
+        }, this);
+        shooting_enemies.forEach(function(enemy){
+            shootingEnemyTargetted(game, enemy);
+        }, this);
+
+        updtStillBarCheck(game);
     }
 }
 
@@ -453,6 +668,12 @@ Game.VictoryScreen.prototype = {
                                             switch(next_level){
                                                 case 2:
                                                     this.game.state.start('Level2');
+                                                    break;
+                                                case 3:
+                                                    this.game.state.start('Level3');
+                                                    break;
+                                                case 4:
+                                                    this.game.state.start('Level4');
                                                     break;
                                                 default:
                                                     this.game.state.start('MainMenu');
@@ -475,7 +696,7 @@ Game.FailState.prototype = {
         failText = this.game.add.text(325, 100, 'You failed!', 
                                         { fontSize: '32px',
                                           fill: '#fff'});
-        retry_button = this.add.button(305, 500, 'buttons',
+        retry_button = this.add.button(305, 500, 'retry',
                                         function(){
                                             switch(next_level){
                                                 case 1: 
@@ -484,6 +705,14 @@ Game.FailState.prototype = {
                                                 case 2:
                                                     this.game.state.start('Level2');
                                                     break;
+                                                case 3:
+                                                    this.game.state.start('Level3');
+                                                    break;
+                                                case 4:
+                                                    this.game.state.start('Level4');
+                                                    break;
+                                                default: 
+                                                    this.game.state.start('MainMenu');
                                             }
                                         },this,2,1,0);
         this.sound.stopAll();
@@ -512,6 +741,18 @@ Game.LevelSelect.prototype = {
         if (highestLevel>=2){
             level2_button = this.add.button(268, 150, 'level2_button', function(){
                 this.game.state.start('Level2');
+            },this,2,1,0);
+        }
+
+        if (highestLevel>=3){
+            level3_button = this.add.button(461, 150, 'level3_button', function(){
+                this.game.state.start('Level3');
+            },this,2,1,0);
+        }
+
+        if (highestLevel>=4){
+            level4_button = this.add.button(75, 221, 'level4_button', function(){
+                this.game.state.start('Level4');
             },this,2,1,0);
         }
     }
@@ -612,13 +853,13 @@ function initRedEnemies(game){
     enemies.enableBody = true;
     enemies.setAll('anchor.x',0.5);
     enemies.setAll('anchor.y',0.5);
-    enemies.setAll('allowGravity', false);
+    enemies.setAll('body.allowGravity', false);
 
     shooting_enemies = game.add.group();
     shooting_enemies.enableBody = true;
     shooting_enemies.setAll('anchor.x',0.5);
     shooting_enemies.setAll('anchor.y',0.5);
-    shooting_enemies.setAll('allowGravity',false);
+    shooting_enemies.setAll('body.allowGravity',false);
 }
 
 function initBullets(game){
@@ -772,7 +1013,7 @@ function updtCollision(game){
             game.add.audio('thud', volume=volumeOverall/100.0).play();
             chillTime = game.time.now + 200;
         }
-        stillValue -= 0.5;
+        stillValue -= 0.1;
         cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
         stillRest.crop(cropRectangle);
         stillTime = game.time.now + 200;
@@ -782,9 +1023,16 @@ function updtCollision(game){
     });
     game.physics.arcade.collide(enemies,layer);
     game.physics.arcade.collide(player,enemies, function(){
-        game.camera.x = 0;
-        game.camera.y = 0;
-        game.state.start('FailState');
+        if(game.time.now > chillTimeBad){
+            stillValue -= 50;
+            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+            stillRest.crop(cropRectangle);
+            chillTimeBad = game.time.now + 200;
+            game.add.audio('shooting_enemy_die', volume=volumeOverall/100.0).play();
+            if(stillValue<=0){
+                game.state.start('FailState');
+            }
+        }
     });
     game.physics.arcade.collide(bullets,enemies, function(){   
         if(bullets.getFurthestFrom(player)!=null){
@@ -795,17 +1043,23 @@ function updtCollision(game){
         game.add.audio('enemy_die', volume=volumeOverall/100.0).play();
         bullet.kill();
         enemies.getClosestTo(bullet).kill();
+        stillValue += 5;
+        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+        stillRest.crop(cropRectangle);
         remaining -= 1;
         remainingText.text = 'Remaining: ' + remaining.toString();
     });
     game.physics.arcade.collide(shooting_enemies,layer);
     game.physics.arcade.collide(player,shooting_enemies, function(){
-        stillValue -= 50;
-        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
-        stillRest.crop(cropRectangle);
-        stillTime = game.time.now + 200;
-        if(stillValue<=0){
-            game.state.start('FailState');
+        if(game.time.now > chillTimeBad){
+            stillValue -= 30;
+            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+            stillRest.crop(cropRectangle);
+            stillTime = game.time.now + 200;
+            chillTimeBad = game.time.now + 200;
+            if(stillValue<=0){
+                game.state.start('FailState');
+            }
         }
     });
     game.physics.arcade.collide(player,enemyBullets, function(){
@@ -832,6 +1086,9 @@ function updtCollision(game){
         game.add.audio('enemy_die', volume=volumeOverall/100.0).play();
         bullet.kill();
         shooting_enemies.getClosestTo(bullet).kill();
+        stillValue += 5;
+        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+        stillRest.crop(cropRectangle);
         remaining -= 1;
         remainingText.text = 'Remaining: ' + remaining.toString();
     });
@@ -859,6 +1116,32 @@ function updtCameraMove(game){
  
     if(Math.abs(game.camera.y - player.y)<400){
         game.camera.y -= 2000/Math.abs(game.camera.y - player.y);
+    }
+}
+
+function updtStillBarCheck(game){
+    if(!controls.down.isDown && !controls.right.isDown && !controls.left.isDown && !controls.up.isDown && started == 1){
+        stillValue -= 0.5;   
+        //stillRest.crop.width = (stillValue / stillMax) * 400;
+        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+        stillRest.crop(cropRectangle);
+        stillTime = game.time.now + 200;
+        if(stillValue<=0){
+            game.state.start('FailState');
+            
+        }
+
+    } else if(Math.abs(player.body.velocity.x)<0.1&& Math.abs(player.body.velocity.y)<0.1&&started==1){
+        
+        stillValue -= 0.5;   
+        //stillRest.crop.width = (stillValue / stillMax) * 400;
+        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+        stillRest.crop(cropRectangle);
+        stillTime = game.time.now + 200;
+        if(stillValue<=0){
+            game.state.start('FailState');
+            
+        }
     }
 }
 
