@@ -5,6 +5,8 @@
     <meta charset = "UTF-8"/>
     <title>Test</title>
     <script src = "js/phaser.js"></script>
+    <script src = "js/illuminated.js"></script>
+    <script src = "js/phaser-illuminated.js"></script>
 </head>
 
 
@@ -86,10 +88,12 @@ Game.Preload.prototype = {
         this.load.image('still_bar_drain', 'assets/still_bar_drain.png');
         this.load.image('enemy_shooting', 'assets/shooting_redblock.png');
         this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
+
     },
 
     create: function() {
         //Pass the torch to Level1
+        this.game.illuminated = this.game.plugins.add(Phaser.Plugin.PhaserIlluminated);
         this.game.state.start('MainMenu');
     }
 };
@@ -105,9 +109,10 @@ Game.MainMenu = function(){};
 var button;
 
 Game.MainMenu.prototype = {
-    create: function() {
+    create: function(){
 
-        startButton = this.add.button(this.world.centerX -95, this.world.centerY - 100, 'buttons', 
+        titleText = this.game.add.text(175, 75, "Don't Be Still!", {fontSize: '72px', fill: '#fff'});
+        startButton = this.add.button(305, 225, 'buttons', 
                                   function(){
                                     this.game.state.start('Level1');
                                   },this,2,1,0);
@@ -142,7 +147,7 @@ Game.Level1 = function(){};
 
 var map;
 var layer;
-
+var game;
 var player;
 var controls = {};
 var playerSpeed = 325; 
@@ -165,6 +170,9 @@ var stillBar_underlay;
 var stillValue = 100;
 var started = 0;
 var enemyShootTime = 90;
+var bgmusic;
+var highestLevel = 0;
+var next_level = 1;
 
 ///var button;
 
@@ -174,9 +182,6 @@ Game.Level1.prototype = {
 
         //Init bullets
         initBullets(game);
-
-        //Init enemies
-        initRedEnemies(game);
 
         //Set controls
         initControls(game);
@@ -215,18 +220,21 @@ Game.Level1.prototype = {
         //                      },this,2,1,0);
 
         
-        //Init red enemies
-        enemy1 = enemies.create(550, 75, 'EnemyRed');
-        enemy2 = enemies.create(100, 475, 'EnemyRed');
-        enemy3 = enemies.create(150, 100, 'EnemyRed');
-        enemy4 = enemies.create(862, 550, 'EnemyRed');
-        enemy5 = enemies.create(1658, 247, 'EnemyRed');
+        //Init enemies
+        initRedEnemies(game);
+        enemy1 = enemies.create(225, 150, 'EnemyRed');
+        enemy2 = enemies.create(200, 475, 'EnemyRed');
+        enemy3 = enemies.create(1200, 200, 'EnemyRed');
+        enemy4 = enemies.create(875, 575, 'EnemyRed');
+        enemy5 = enemies.create(1375, 600, 'EnemyRed');
         enemy6 = enemies.create(1808, 945, 'EnemyRed');
         enemy7 = enemies.create(1125, 1187, 'EnemyRed');
         enemy8 = enemies.create(841, 1308, 'EnemyRed');
         enemy9 = enemies.create(467, 1173, 'EnemyRed');
         enemy10 = enemies.create(259, 1320, 'EnemyRed');
 
+        
+                
         //Heatlh bar of enemies
         //this.barProgress = enemy1.hp;
         //this.enemyBar1 = this.add.bitmapData(32,8);
@@ -250,8 +258,15 @@ Game.Level1.prototype = {
 
         //State checks
         if(remaining==0){
+            next_level = 2
             this.game.state.start('VictoryScreen');
+            if(1>=highestLevel){
+                highestLevel = 1;
+                localStorage.setItem("reached-level", highestLevel.toString());
+            }
         }
+
+        console.log(localStorage.getItem("reached-level"));
 
         if(volumeText.visible==true){
             this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
@@ -314,7 +329,7 @@ Game.Level2.prototype = {
         map.addTilesetImage('tileset');
         layer = map.createLayer(0);
         //layer.resizeWorld();
-        remaining = 10;
+        remaining = 8;
         game.world.setBounds(0, 0, 1250, 1250);
 
         //Collision/Physics 
@@ -333,12 +348,18 @@ Game.Level2.prototype = {
         player.physicsBodyType = Phaser.Physics.ARCADE;
         player.body.velocity.x = 0;
         player.body.velocity.y = 0;
-
+        
         //Init UI
         initUI(game, this);
 
         enemy1 = shooting_enemies.create(241, 682, 'enemy_shooting');
         enemy2 = shooting_enemies.create(693, 247, 'enemy_shooting');
+        enemy3 = enemies.create(425, 450, 'EnemyRed');
+        enemy4 = shooting_enemies.create(650, 625, 'enemy_shooting');
+        enemy5 = shooting_enemies.create(500, 1025, 'enemy_shooting');
+        enemy6 = shooting_enemies.create(875, 1000, 'enemy_shooting');
+        enemy7 = shooting_enemies.create(175, 875, 'enemy_shooting');
+        enemy8 = enemies.create(1075, 700, 'EnemyRed');
 
     },
 
@@ -352,6 +373,15 @@ Game.Level2.prototype = {
 
         //Camera movement
         updtCameraMove(game);
+
+        if(remaining==0){
+            next_level = 3
+            this.game.state.start('VictoryScreen');
+            if(2>=highestLevel){
+                highestLevel = 2;
+                localStorage.setItem("reached-level", highestLevel.toString());
+            }
+        }
 
         if(volumeText.visible==true){
             this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
@@ -370,6 +400,13 @@ Game.Level2.prototype = {
 
         shootingEnemyTargetted(game, enemy1);
         shootingEnemyTargetted(game, enemy2);
+        enemyTargetted(enemy3);
+        shootingEnemyTargetted(game, enemy4);
+        shootingEnemyTargetted(game, enemy5);
+        shootingEnemyTargetted(game, enemy6);
+        shootingEnemyTargetted(game, enemy7);
+        enemyTargetted(enemy8);
+
 
 
     }
@@ -380,12 +417,19 @@ Game.VictoryScreen = function(){};
 Game.VictoryScreen.prototype = {
     create: function(){
         this.stage.backgroundColor = "#000";
-        winText = this.game.add.text(312, 100, 'Nicely done!!',
+        winText = this.game.add.text(335, 100, 'You win!',
                                         {  fontSize: '32px',
                                            fill: '#fff'});
         next_level_button = this.add.button(305, 500, 'buttons',
                                         function(){
-                                            this.game.state.start('Level2');
+                                            switch(next_level){
+                                                case 2:
+                                                    this.game.state.start('Level2');
+                                                    break;
+                                                default:
+                                                    this.game.state.start('MainMenu');
+                                                    break;
+                                            }
                                         },this,2,1,0);
         this.sound.stopAll();
     }
@@ -405,7 +449,14 @@ Game.FailState.prototype = {
                                           fill: '#fff'});
         retry_button = this.add.button(305, 500, 'buttons',
                                         function(){
-                                            this.game.state.start('Level1');
+                                            switch(next_level){
+                                                case 1: 
+                                                    this.game.state.start('Level1');
+                                                    break;
+                                                case 2:
+                                                    this.game.state.start('Level2');
+                                                    break;
+                                            }
                                         },this,2,1,0);
         this.sound.stopAll();
     }
@@ -427,7 +478,7 @@ function shootbullet(game) {
         game.physics.arcade.moveToPointer(bullet, 2000);
         bullet.body.allowGravity = false;
         bullet.body.bounce.set(0.2);
-        game.add.audio('shoot',volume=volumeOverall/100.0).play();
+        game.add.audio('shoot',volume=volumeOverall/200.0).play();
     }
 }
 
@@ -568,7 +619,8 @@ function initUI(game){
     stillRest.cropEnabled = true;
     stillRest.crop.width = (stillValue / stillMax) * stillRest.width;
 
-    game.add.audio('music', volume=volumeOverall/100.0).play();
+    bgmusic = game.add.audio('music', volume=volumeOverall/200.0);
+    bgmusic.play();
 }
 
 function initControls(game){
@@ -629,8 +681,6 @@ function updtPlayercontrols(game){
         if(started!=1){
             started = 1;
         }
-        console.log(player.x);
-        console.log(player.y);
     }
 
     if(controls.volumeDown.isDown){
@@ -639,6 +689,7 @@ function updtPlayercontrols(game){
             volumeText.visible = true;
             volume_underlay.visible = true;
             volumeText.text = 'Volume: ' + volumeOverall.toString();
+            bgmusic.volume = volumeOverall/200.0;
         } else {
             volumeText.visible = true;
             volume_underlay.visible = true;
@@ -651,6 +702,7 @@ function updtPlayercontrols(game){
             volumeText.visible = true;
             volume_underlay.visible = true;
             volumeText.text = 'Volume: ' + volumeOverall.toString();
+            bgmusic.volume = volumeOverall/200.0;
         } else {
             volumeText.visible = true;
             volume_underlay.visible = true;
