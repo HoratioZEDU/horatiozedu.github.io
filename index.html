@@ -5,8 +5,6 @@
     <meta charset = "UTF-8"/>
     <title>Test</title>
     <script src = "js/phaser.js"></script>
-    <script src = "js/illuminated.js"></script>
-    <script src = "js/phaser-illuminated.js"></script>
 </head>
 
 
@@ -93,7 +91,6 @@ Game.Preload.prototype = {
 
     create: function() {
         //Pass the torch to Level1
-        this.game.illuminated = this.game.plugins.add(Phaser.Plugin.PhaserIlluminated);
         this.game.state.start('MainMenu');
     }
 };
