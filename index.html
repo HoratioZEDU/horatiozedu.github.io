@@ -18,9 +18,10 @@ window.onload = function(){
         game.state.add('Preload',Game.Preload);
         game.state.add('MainMenu',Game.MainMenu);
         game.state.add('FailState',Game.FailState);
+        game.state.add('VictoryScreen',Game.VictoryScreen);
+        game.state.add('LevelSelect',Game.LevelSelect);
         game.state.add('Level1',Game.Level1);
         game.state.add('Level2',Game.Level2);
-        game.state.add('VictoryScreen',Game.VictoryScreen);
 
         game.state.start('Boot');
 
@@ -71,6 +72,11 @@ Game.Preload.prototype = {
         this.load.image('tileset', 'assets/tileset.png');
         this.load.image('player', 'assets/blackblock.png');
         this.load.spritesheet('buttons', 'assets/start_button.png', 193, 71);
+        this.load.spritesheet('level_select', 'assets/level_select.png', 193, 71);
+        this.load.spritesheet('level1_button', 'assets/level1_button.png', 193, 71);
+        this.load.spritesheet('level2_button', 'assets/level2_button.png', 193, 71);
+        this.load.spritesheet('menu_button', 'assets/back_to_menu.png', 193, 71);
+        this.load.spritesheet('next_level', 'assets/next_level.png', 193, 71);
         this.load.image('EnemyRed', 'assets/redblock.png');
         this.load.image('bullet', 'assets/bullet.png');
         this.load.audio('shoot','assets/shoot.wav');
@@ -109,10 +115,12 @@ Game.MainMenu.prototype = {
     create: function(){
 
         titleText = this.game.add.text(175, 75, "Don't Be Still!", {fontSize: '72px', fill: '#fff'});
-        startButton = this.add.button(305, 225, 'buttons', 
-                                  function(){
-                                    this.game.state.start('Level1');
-                                  },this,2,1,0);
+        startButton = this.add.button(305, 225, 'buttons', function(){
+            this.game.state.start('Level1');
+        },this,2,1,0);
+        levelSelectButton = this.add.button(305, 325, 'level_select', function(){
+            this.game.state.start('LevelSelect');
+        },this,2,1,0);
 
     }
 }
@@ -168,8 +176,13 @@ var stillValue = 100;
 var started = 0;
 var enemyShootTime = 90;
 var bgmusic;
-var highestLevel = 0;
 var next_level = 1;
+
+if(localStorage.getItem('reached-level')!=null) {
+    var highestLevel = parseInt(localStorage.getItem('reached-level'));
+} else {
+    var highestLevel = 0;
+}
 
 ///var button;
 
@@ -185,7 +198,7 @@ Game.Level1.prototype = {
 
         //Background color definition
         this.stage.backgroundColor = '#d3d3d3';
-
+        console.log(localStorage.getItem('reached-level'));
         //Map initialization
         map = this.add.tilemap('level1', 25, 25)
         map.addTilesetImage('tileset');
@@ -268,7 +281,6 @@ Game.Level1.prototype = {
         if(volumeText.visible==true){
             this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
         }
-
         if(!controls.down.isDown && !controls.right.isDown && !controls.left.isDown && !controls.up.isDown && started == 1){
             stillValue -= 0.5;   
             //stillRest.crop.width = (stillValue / stillMax) * 400;
@@ -278,7 +290,16 @@ Game.Level1.prototype = {
             if(stillValue<=0){
                 this.state.start('FailState');
             }
+        } else if(Math.abs(player.body.velocity.x)<1&& Math.abs(player.body.velocity.y)<1&&started==1){
+            stillValue -= 0.5;
+            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+            stillRest.crop(cropRectangle);
+            stillTime = game.time.now + 200;
+            if(stillValue<=0){
+                this.state.start('FailState');
+            }
         }
+
 
         enemyTargetted(enemy1);
         enemyTargetted(enemy2);
@@ -311,10 +332,7 @@ Game.Level2.prototype = {
     create: function(game){
 
         //Init bullets
-        initBullets(game);
-
-        //Init enemies
-        initRedEnemies(game);
+        initBullets(game); 
 
         //Set controls
         initControls(game);
@@ -327,7 +345,7 @@ Game.Level2.prototype = {
         layer = map.createLayer(0);
         //layer.resizeWorld();
         remaining = 8;
-        game.world.setBounds(0, 0, 1250, 1250);
+        game.world.setBounds(0, 0, 1350, 1350);
 
         //Collision/Physics 
         this.physics.arcade.gravity.y = 1400;
@@ -346,6 +364,9 @@ Game.Level2.prototype = {
         player.body.velocity.x = 0;
         player.body.velocity.y = 0;
         
+        //Init enemies
+        initRedEnemies(game);
+
         //Init UI
         initUI(game, this);
 
@@ -357,6 +378,8 @@ Game.Level2.prototype = {
         enemy6 = shooting_enemies.create(875, 1000, 'enemy_shooting');
         enemy7 = shooting_enemies.create(175, 875, 'enemy_shooting');
         enemy8 = enemies.create(1075, 700, 'EnemyRed');
+
+        next_level = 2;
 
     },
 
@@ -393,6 +416,14 @@ Game.Level2.prototype = {
             if(stillValue<=0){
                 this.state.start('FailState');
             }
+        } else if(Math.abs(player.body.velocity.x)<0.1&& Math.abs(player.body.velocity.y)<0.1&&started==1){
+            stillValue -= 0.5;
+            cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+            stillRest.crop(cropRectangle);
+            stillTime = game.time.now + 200;
+            if(stillValue<=0){
+                this.state.start('FailState');
+            }
         }
 
         shootingEnemyTargetted(game, enemy1);
@@ -417,7 +448,7 @@ Game.VictoryScreen.prototype = {
         winText = this.game.add.text(335, 100, 'You win!',
                                         {  fontSize: '32px',
                                            fill: '#fff'});
-        next_level_button = this.add.button(305, 500, 'buttons',
+        next_level_button = this.add.button(305, 500, 'next_level',
                                         function(){
                                             switch(next_level){
                                                 case 2:
@@ -457,6 +488,34 @@ Game.FailState.prototype = {
                                         },this,2,1,0);
         this.sound.stopAll();
     }
+}
+
+Game.LevelSelect = function(){};
+
+Game.LevelSelect.prototype = {
+
+    create: function(){
+        this.stage.backgroundColor = '#000';
+
+        highestLevel = parseInt(localStorage.getItem('reached-level'));
+
+        menu_button = this.add.button(75, 50, 'menu_button', function(){
+            this.game.state.start('MainMenu');
+        },this,2,1,0);
+
+        if (highestLevel>=1){
+            level1_button = this.add.button(75, 150, 'level1_button', function(){
+                this.game.state.start('Level1');
+            },this,2,1,0);
+        }
+
+        if (highestLevel>=2){
+            level2_button = this.add.button(268, 150, 'level2_button', function(){
+                this.game.state.start('Level2');
+            },this,2,1,0);
+        }
+    }
+
 }
 
 function checkOverlap(spriteA,spriteB){
@@ -713,6 +772,13 @@ function updtCollision(game){
             game.add.audio('thud', volume=volumeOverall/100.0).play();
             chillTime = game.time.now + 200;
         }
+        stillValue -= 0.5;
+        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+        stillRest.crop(cropRectangle);
+        stillTime = game.time.now + 200;
+        if(stillValue<=0){
+            game.state.start('FailState');
+        }
     });
     game.physics.arcade.collide(enemies,layer);
     game.physics.arcade.collide(player,enemies, function(){
@@ -733,7 +799,15 @@ function updtCollision(game){
         remainingText.text = 'Remaining: ' + remaining.toString();
     });
     game.physics.arcade.collide(shooting_enemies,layer);
-    game.physics.arcade.collide(player,shooting_enemies);
+    game.physics.arcade.collide(player,shooting_enemies, function(){
+        stillValue -= 50;
+        cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
+        stillRest.crop(cropRectangle);
+        stillTime = game.time.now + 200;
+        if(stillValue<=0){
+            game.state.start('FailState');
+        }
+    });
     game.physics.arcade.collide(player,enemyBullets, function(){
         if(enemyBullets.getClosestTo(player)!=null){
             enemyBullet = enemyBullets.getClosestTo(player);
@@ -741,7 +815,7 @@ function updtCollision(game){
             enemyBullet = enemyBullets.getRandom();
         }
         enemyBullet.kill();
-        stillValue -= 10;
+        stillValue -= 25;
         cropRectangle = new Phaser.Rectangle(0, 0, (stillValue / stillMax) * 400, 60)
         stillRest.crop(cropRectangle);
         game.add.audio('shooting_enemy_die', volume=volumeOverall/100.0).play();
