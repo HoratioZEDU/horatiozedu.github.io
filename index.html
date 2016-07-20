@@ -24,6 +24,7 @@ window.onload = function(){
         game.state.add('Level2',Game.Level2);
         game.state.add('Level3',Game.Level3);
         game.state.add('Level4',Game.Level4);
+        game.state.add('Level5',Game.Level5);
 
         game.state.start('Boot');
 
@@ -73,6 +74,7 @@ Game.Preload.prototype = {
         this.load.tilemap('level2', 'assets/maps/level2.csv');
         this.load.tilemap('level3', 'assets/maps/level3.csv');
         this.load.tilemap('level4', 'assets/maps/level4.csv');
+        this.load.tilemap('level5', 'assets/maps/level5.csv');
         this.load.image('tileset', 'assets/tileset.png');
         this.load.image('player', 'assets/blackblock.png');
         this.load.spritesheet('buttons', 'assets/start_button.png', 193, 71);
@@ -81,6 +83,7 @@ Game.Preload.prototype = {
         this.load.spritesheet('level2_button', 'assets/level2_button.png', 193, 71);
         this.load.spritesheet('level3_button', 'assets/level3_button.png', 193, 71);
         this.load.spritesheet('level4_button', 'assets/level4_button.png', 193, 71);
+        this.load.spritesheet('level5_button', 'assets/level5_button.png', 193, 71);
         this.load.spritesheet('menu_button', 'assets/back_to_menu.png', 193, 71);
         this.load.spritesheet('next_level', 'assets/next_level.png', 193, 71);
         this.load.spritesheet('retry', 'assets/retry.png', 193, 71);
@@ -99,6 +102,8 @@ Game.Preload.prototype = {
         this.load.image('still_bar_drain', 'assets/still_bar_drain.png');
         this.load.image('enemy_shooting', 'assets/shooting_redblock.png');
         this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
+        this.load.image('big_enemy', 'assets/big_enemy.png');
+        this.load.image('shadow_enemy', 'assets/shadow_enemy.png');
 
     },
 
@@ -185,6 +190,7 @@ var enemyShootTime = 90;
 var bgmusic;
 var next_level = 1;
 var stillTimer;
+var shadowSpeed = 750;
 
 if(localStorage.getItem('reached-level')!=null) {
     var highestLevel = parseInt(localStorage.getItem('reached-level'));
@@ -590,7 +596,7 @@ Game.Level4.prototype = {
 
         enemy1 = enemies.create(9*25, 32*25, 'EnemyRed');
         enemy2 = enemies.create(14*25, 25*25, 'EnemyRed');
-        enemy3 = enemies.create(16*25, 13*25, 'EnemyRed');
+        enemy3 = enemies.create(15*25, 13*25, 'EnemyRed');
         enemy4 = enemies.create(25*25, 23*25, 'EnemyRed');
         enemy5 = enemies.create(26*25, 6*25, 'EnemyRed');
         enemy6 = enemies.create(39*25, 6*25, 'EnemyRed');
@@ -601,7 +607,7 @@ Game.Level4.prototype = {
         enemy12 = shooting_enemies.create(35*25, 38*25, 'enemy_shooting');
         enemy13 = shooting_enemies.create(39*25, 34*25, 'enemy_shooting');
         enemy14 = shooting_enemies.create(39*25, 41*25, 'enemy_shooting');
-        enemy15 = shooting_enemies.create(36*25, 22*25, 'enemy_shooting');
+        enemy15 = shooting_enemies.create(36*25, 21*25, 'enemy_shooting');
         enemy16 = shooting_enemies.create(36*25, 15*25, 'enemy_shooting');
 
         enemies.forEach(function(enemy){
@@ -655,6 +661,101 @@ Game.Level4.prototype = {
     }
 }
 
+Game.Level5 = function(){};
+
+Game.Level5.prototype = {
+    create: function(game){
+
+        //Set controls
+        initControls(game);
+
+        this.stage.backgroundColor = '#d3d3d3';
+
+        //Map initialization
+        map = this.add.tilemap('level5', 25, 25)
+        map.addTilesetImage('tileset');
+        layer = map.createLayer(0);
+        //layer.resizeWorld();
+        remaining = 1;
+        game.world.setBounds(0, 0, 100*25, 100*25);
+
+        //Collision/Physics 
+        this.physics.arcade.gravity.y = 1400;
+        map.setCollisionBetween(0,0);
+        //map.setTileIndexCallback(2,this.resetPlayer,this);
+
+        //Set player
+        player = this.add.sprite(175,175, 'player');
+        player.anchor.setTo(0.5);
+        //player.animations.add('runRight',[6, 7, 8, 9], 5, true);
+        //player.animations.add('runLeft',[0, 1, 2, 3], 5, true);
+        this.physics.arcade.enable(player);
+        player.body.collideWorldBounds = true;
+        game.physics.enable(player,Phaser.Physics.ARCADE);
+        player.physicsBodyType = Phaser.Physics.ARCADE;
+        player.body.velocity.x = 0;
+        player.body.velocity.y = 0;
+        
+        //Init enemies
+        initRedEnemies(game);
+
+        enemy1 = shadow_enemy.create(36*25, 81*25, 'shadow_enemy');
+
+        enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+        shooting_enemies.forEach(function(enemy){
+            enemy.body.allowGravity = false;
+        }, this);
+
+
+        //Init bullets
+        initBullets(game); 
+
+        //Init UI
+        initUI(game, this);        
+
+        next_level = 5;
+    }, 
+
+    update: function(game){
+        //Collision
+        updtCollision(game);
+
+        //Player movement
+        updtPlayercontrols(game);
+
+        //Camera movement
+        updtCameraMove(game);
+
+        if(remaining==0){
+            next_level = 6;
+            this.game.state.start('VictoryScreen');
+            if(5>=highestLevel){
+                highestLevel = 5;
+                localStorage.setItem("reached-level", highestLevel.toString());
+            }
+        }
+
+        if(volumeText.visible==true){
+            this.time.events.add(1000,function(){volumeText.visible = false;volume_underlay.visible = false;},this);
+        }
+
+        enemies.forEach(function(enemy){
+            enemyTargetted(enemy);
+        }, this);
+        shooting_enemies.forEach(function(enemy){
+            shootingEnemyTargetted(game, enemy);
+        }, this);
+        shadow_enemy.forEach(function(enemy){
+            shadowEnemyTargetted(game, enemy);
+        }, this)
+        console.log(map.getTile(player.body.x, player.body.y, layer));
+
+        updtStillBarCheck(game);
+    }
+}
+
 Game.VictoryScreen = function(){};
 
 Game.VictoryScreen.prototype = {
@@ -674,6 +775,9 @@ Game.VictoryScreen.prototype = {
                                                     break;
                                                 case 4:
                                                     this.game.state.start('Level4');
+                                                    break;
+                                                case 5:
+                                                    this.game.state.start('Level5');
                                                     break;
                                                 default:
                                                     this.game.state.start('MainMenu');
@@ -710,6 +814,9 @@ Game.FailState.prototype = {
                                                     break;
                                                 case 4:
                                                     this.game.state.start('Level4');
+                                                    break;
+                                                case 5:
+                                                    this.game.state.start('Level5');
                                                     break;
                                                 default: 
                                                     this.game.state.start('MainMenu');
@@ -755,6 +862,12 @@ Game.LevelSelect.prototype = {
                 this.game.state.start('Level4');
             },this,2,1,0);
         }
+
+        if (highestLevel>=5){
+            level5_button = this.add.button(268, 221, 'level5_button', function(){
+                this.game.state.start('Level5');
+            },this,2,1,0);
+        }
     }
 
 }
@@ -790,7 +903,7 @@ function enemyShoot(game, enemy){
     }
 }
 
-function enemyMovement(enemy){
+function enemyMovement(enemy, enemySpeed){
 
     if(Math.abs(enemy.x - player.x) <= 2){
         enemy.x = player.x;
@@ -824,10 +937,10 @@ function enemyMovement(enemy){
 function enemyTargetted(enemy){
     enemy.distance_from_player = Math.sqrt(Math.abs((player.x - enemy.x))+Math.abs((player.y - enemy.y)));
     if(enemy.distance_from_player<=18){
-        enemyMovement(enemy);
+        enemyMovement(enemy, enemySpeed);
         enemy.seen = 1;
     } else if(enemy.seen==1){
-        enemyMovement(enemy);
+        enemyMovement(enemy, enemySpeed);
     } else {
         enemy.body.velocity.x = 0;
         enemy.body.velocity.y = 0;
@@ -837,11 +950,24 @@ function enemyTargetted(enemy){
 function shootingEnemyTargetted(game, enemy){
     enemy.distance_from_player = Math.sqrt(Math.abs((player.x - enemy.x))+Math.abs((player.y - enemy.y)));
     if(enemy.distance_from_player<=18 && enemy.visible==true){
-        enemyMovement(enemy);
+        enemyMovement(enemy, enemySpeed);
         enemy.seen = 1;
         enemyShoot(game, enemy);
     } else if (enemy.seen==1 && enemy.visible==true){
-        enemyMovement(enemy);
+        enemyMovement(enemy, enemySpeed);
+    } else {
+        enemy.body.velocity.x = 0;
+        enemy.body.velocity.y = 0;
+    }
+}
+
+function shadowEnemyTargetted(game, enemy){
+    enemy.distance_from_player = Math.sqrt(Math.abs(player.x - enemy.x)+Math.abs(player.y - enemy.y));
+    if(enemy.distance_from_player<=20 && map.getTile(player.body.x, player.body.y, layer)==5){
+        enemyMovement(enemy, shadowSpeed);
+        enemy.seen = 1;
+    } else if (enemy.seen==1 && map.getTile(player.body.x, player.body.y, layer)==5){
+        enemyMovement(enemy, shadowSpeed);
     } else {
         enemy.body.velocity.x = 0;
         enemy.body.velocity.y = 0;
@@ -860,6 +986,18 @@ function initRedEnemies(game){
     shooting_enemies.setAll('anchor.x',0.5);
     shooting_enemies.setAll('anchor.y',0.5);
     shooting_enemies.setAll('body.allowGravity',false);
+
+    big_enemy = game.add.group();
+    big_enemy.enableBody = true;
+    big_enemy.setAll('anchor.x',0.5);
+    big_enemy.setAll('anchor.y',0.5);
+    big_enemy.setAll('body.allowGravity',false);
+
+    shadow_enemy = game.add.group();
+    shadow_enemy.enableBody = true;
+    shadow_enemy.setAll('anchor.x',0.5);
+    shadow_enemy.setAll('anchor.y',0.5);
+    shadow_enemy.setAll('body.allowGravity',false);
 }
 
 function initBullets(game){
@@ -1006,6 +1144,12 @@ function updtPlayercontrols(game){
         }
     }
 }
+
+
+function updtBigEnemy(game){
+    game.physics.arcade.collide(big_enemy, player);
+}
+
 
 function updtCollision(game){
     game.physics.arcade.collide(player,layer,function(){
