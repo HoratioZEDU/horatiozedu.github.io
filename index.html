@@ -1,0 +1,32 @@
+<html>
+<head>
+	<meta charset = "UTF-8"/>
+	<title>risk of supergrim</title>
+	<script src = "js/Functions.js"></script>
+	<script src = "js/phaser.js"></script>
+	<script src = "js/Boot.js"></script>
+	<script src = "js/Preload.js"></script>
+	<script src = "js/MainMenu.js"></script>
+	<script src = "js/tilemap01.js"></script>
+</head>
+
+
+
+<body>
+<script type="text/javascript">
+
+window.onload = function(){
+
+	var game = new Phaser.Game(800,600,Phaser.CANVAS,'');
+
+	game.state.add('Boot',Game.Boot);
+	game.state.add('Preload',Game.Preload);
+	game.state.add('MainMenu',Game.MainMenu);
+	game.state.add('tilemap01',Game.tilemap01);
+
+	game.state.start('Boot');
+
+}
+</script>
+</body>
+</html>
