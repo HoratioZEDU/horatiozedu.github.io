@@ -13,7 +13,9 @@ Game.Preload.prototype = {
 
 		// Loading assets
 		this.load.spritesheet('start_button', 'assets/spritesheets/start_button.png', 196, 91);
+		this.load.spritesheet('gargoyle', 'assets/spritesheets/gargoyle.png', 78, 78);
 		this.load.image('tileset', 'assets/maps/tileset.png');
+		this.load.image('hud_background', 'assets/images/hud_background.png');
 		this.load.tilemap('tilemap01', 'assets/maps/tilemap01.csv');
 
 	}, 
