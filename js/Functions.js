@@ -24,6 +24,7 @@ function initControls(game){
 		punch: game.input.keyboard.addKey(Phaser.Keyboard.F),
 		first: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
 		second: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+		third: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
 	}	
 	cursors = game.input.keyboard.createCursorKeys();
 }
@@ -185,7 +186,7 @@ function gargoyleMovement(game, gargoyle, from){
 					still = false;
 				}
 			}
-			if(still){
+			if(still && typeof gargoyle_buttons["first_button"]!=="undefined"){
 				for (button in gargoyle_buttons){
 					gargoyle_buttons[button].setFrames(0, 0, 0);
 				}
@@ -202,7 +203,7 @@ function gargoyleMovement(game, gargoyle, from){
 					still = false;
 				}
 			}
-			if(still){
+			if(still && typeof gargoyle_buttons["second_button"]!=="undefined"){
 				for (button in gargoyle_buttons){
 					gargoyle_buttons[button].setFrames(0, 0, 0);
 				}
@@ -212,6 +213,23 @@ function gargoyleMovement(game, gargoyle, from){
 				still = true;
 			}
 		}		
+
+		if(controls.third.isDown){
+			for (gargoi in Game.gargoyles){
+				if (Math.abs(Game.gargoyles[gargoi].body.velocity.y) >= 0.1 || Math.abs(Game.gargoyles[gargoi].body.velocity.x) >= 0.1){
+					still = false;
+				}
+			}
+			if(still && typeof gargoyle_buttons["third_button"]!=="undefined"){
+				for (button in gargoyle_buttons){
+					gargoyle_buttons[button].setFrames(0, 0, 0);
+				}
+				gargoyle_buttons["third_button"].setFrames(1, 1, 0);
+				selected_gargoyle = 3;
+			} else {
+				still = true;
+			}
+		}
 	}
 }
 
