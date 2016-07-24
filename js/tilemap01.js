@@ -1,16 +1,8 @@
 Game.tilemap01 = function(){};
 
 Game.tilemap01.prototype = {
-	init: function(game, newgame, direction){
+	init: function(game, direction){
 		game.state.states['tilemap01'].direction = direction;
-		if (newgame == true){
-			initGargoyle(game, true, 7*64, 512, 1);
-			Game.gargoyles[1].bringToTop();
-			initGargoyle(game, true, 6*64, 512, 2);
-			Game.gargoyles[2].bringToTop();
-			initGargoyle(game, true, 5*64, 512, 3);
-			Game.gargoyles[3].bringToTop();
-		}
 	},
 
 	create: function(game){
@@ -22,8 +14,7 @@ Game.tilemap01.prototype = {
 		map.addTilesetImage('tileset');
 		layer = map.createLayer(0);
 
-		// Initialization of the gargoyles
-		
+		/*// Initialization of the gargoyles
 		for (i=0; i < Object.keys(Game.gargoyles).length; i++){
 
 			// Sorting the gargoyles and making them show up properly 
@@ -42,6 +33,20 @@ Game.tilemap01.prototype = {
 				Game.gargoyles[(i+1).toString()].rotation = Math.PI;
 			}
 		}
+
+		if(this.direction == 'new'){
+			initGargoyle(game, true, 7*64, 512, 1);
+			Game.gargoyles[1].bringToTop();
+			initGargoyle(game, true, 6*64, 512, 2);
+			Game.gargoyles[2].bringToTop();
+			initGargoyle(game, true, 5*64, 512, 3);
+			Game.gargoyles[3].bringToTop();
+		}*/
+
+		gargoyles = game.add.group();
+
+		initGargoyle(game, 7*64, 512);
+		initGargoyle(game, 8*64, 512);
 
 		// Initialization of controls
 		initControls(game);
@@ -62,10 +67,12 @@ Game.tilemap01.prototype = {
 		game.add.sprite(60, 8*64, 'shadow_left');
 
 		// Initialization of the User Interface
-		initUI(game);
+		//initUI(game);
 	},
 
 	update: function(game){
-		gargoyleMovement(game, Game.gargoyles[selected_gargoyle], 1);
+		for (i = 0; i < gargoyles.children.length; i++){
+			gargoyleOccupation(game, gargoyles.children[i]);
+		}
 	}
 }
