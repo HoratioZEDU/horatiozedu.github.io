@@ -70,6 +70,25 @@ function initUI(game){
 		})
 	}
 
+	if (Object.keys(Game.gargoyles).length >= 3){
+		gargoyle_buttons["third_button"] = game.add.button(884, 300, '1_button', function(){
+			for (gargoi in Game.gargoyles){
+				if (Math.abs(Game.gargoyles[gargoi].body.velocity.y) >= 0.1 || Math.abs(Game.gargoyles[gargoi].body.velocity.x) >= 0.1){
+					still = false;
+				}
+			}
+			if(still){
+				for (button in gargoyle_buttons){
+					gargoyle_buttons[button].setFrames(0, 0, 0);
+				}
+				gargoyle_buttons["third_button"].setFrames(1, 1, 0);
+				selected_gargoyle = 3;
+			} else {
+				still = true;
+			}
+		})
+	}
+
 	gargoyle_buttons["first_button"].setFrames(1, 1, 0);
 }
 
@@ -77,12 +96,12 @@ function gargoyleMovement(game, gargoyle, from){
 
 	if(gargoyle.body.velocity.x == 0 && gargoyle.body.velocity.y == 0 && gargoyle.animations.frame == 0){
 		if(controls.right.isDown){
+			gargoyle.blocked = false;  //Needs to be on the outside of the FOR loop, as it'll reset to false in any non-blocked case
 			for (key in Game.gargoyles){
 				if (Game.gargoyles[key]!=gargoyle){
+					console.log(Game.gargoyles[key]);
 					if (Game.gargoyles[key].x >= gargoyle.x + 60 && Game.gargoyles[key].x <= gargoyle.x + 68 && Game.gargoyles[key].y >= gargoyle.y - 4 && Game.gargoyles[key].y <= gargoyle.y + 4){
 						gargoyle.blocked = true;
-					} else {
-						gargoyle.blocked = false;
 					}
 				}
 			}
@@ -94,15 +113,15 @@ function gargoyleMovement(game, gargoyle, from){
 				gargoyle.x = game.math.snapToFloor(gargoyle.x, 64) + 32;
 				gargoyle.y = game.math.snapToFloor(gargoyle.y, 64) + 32;
 			}
+			console.log(Game.gargoyles);
 		}
 
 		if(controls.left.isDown){
+			gargoyle.blocked = false;
 			for (key in Game.gargoyles){
 				if (Game.gargoyles[key]!=gargoyle){
 					if (Game.gargoyles[key].x <= gargoyle.x - 60 && Game.gargoyles[key].x >= gargoyle.x - 68 && Game.gargoyles[key].y >= gargoyle.y - 4 && Game.gargoyles[key].y <= gargoyle.y + 4){
 						gargoyle.blocked = true;
-					} else {
-						gargoyle.blocked = false;
 					}
 				}
 			}
@@ -117,14 +136,13 @@ function gargoyleMovement(game, gargoyle, from){
 		}
 
 		if(controls.up.isDown){
+			gargoyle.blocked = false;
 			for (key in Game.gargoyles){
 				if (Game.gargoyles[key]!=gargoyle){
 					console.log(gargoyle);
 					console.log(Game.gargoyles[key]);
 					if (Game.gargoyles[key].x >= gargoyle.x - 4 && Game.gargoyles[key].x <= gargoyle.x + 4 && Game.gargoyles[key].y <= gargoyle.y - 60 && Game.gargoyles[key].y >= gargoyle.y - 68){
 						gargoyle.blocked = true;
-					} else {
-						gargoyle.blocked = false;
 					}
 				}
 			}
@@ -139,12 +157,11 @@ function gargoyleMovement(game, gargoyle, from){
 		}
 
 		if(controls.down.isDown){
+			gargoyle.blocked = false;
 			for (key in Game.gargoyles){
 				if (Game.gargoyles[key]!=gargoyle){
 					if (Game.gargoyles[key].x >= gargoyle.x - 4 && Game.gargoyles[key].x <= gargoyle.x + 4 && Game.gargoyles[key].y >= gargoyle.y + 60 && Game.gargoyles[key].y <= gargoyle.y + 68){
 						gargoyle.blocked = true;
-					} else {
-						gargoyle.blocked = false;
 					}
 				}
 			}

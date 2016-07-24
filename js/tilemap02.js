@@ -26,7 +26,7 @@ Game.tilemap02.prototype = {
 
 			// Setting directions for which door they're coming out of
 			if(this.direction == 'right'){ // ---------- Right section
-				Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 64 + 32);
+				Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 32);
 				Game.gargoyles[(i+1).toString()].y = (i*-64)+ 512 + 32;
 				Game.gargoyles[(i+1).toString()].rotation = Math.PI/2;
 			} else if (this.direction == 'up'){ // ---------- Up section

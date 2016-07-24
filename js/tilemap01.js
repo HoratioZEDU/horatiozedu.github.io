@@ -4,11 +4,11 @@ Game.tilemap01.prototype = {
 	init: function(game, newgame, direction){
 		game.state.states['tilemap01'].direction = direction;
 		if (newgame == true){
-			initGargoyle(game, true, 384, 512, 1);
+			initGargoyle(game, true, 7*64, 512, 1);
 			Game.gargoyles[1].bringToTop();
-			initGargoyle(game, true, 64, 64, 2);
+			initGargoyle(game, true, 6*64, 512, 2);
 			Game.gargoyles[2].bringToTop();
-			initGargoyle(game, true, 64, 64, 3);
+			initGargoyle(game, true, 5*64, 512, 3);
 			Game.gargoyles[3].bringToTop();
 		}
 	},
@@ -33,7 +33,7 @@ Game.tilemap01.prototype = {
 
 			// Setting directions for which door they're coming out of
 			if(this.direction == 'left'){ // ---------- Left section
-				Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 11*64 + 32);
+				Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 12*64 + 32);
 				Game.gargoyles[(i+1).toString()].y = (((i%3))*-64)+ 512 + 32;
 				Game.gargoyles[(i+1).toString()].rotation = 3*Math.PI/2;
 			} else if (this.direction == 'down'){ // ---------- Down section
