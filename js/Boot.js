@@ -2,6 +2,8 @@ var Game = {};
 
 Game.Boot = function(){};
 
+Game.gargoyles = {};
+
 Game.Boot.prototype = {
 
 	init: function(){
