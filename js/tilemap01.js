@@ -44,9 +44,11 @@ Game.tilemap01.prototype = {
 		}*/
 
 		gargoyles = game.add.group();
+		gargoyle_buttons = game.add.group();
 
 		initGargoyle(game, 7*64, 512);
 		initGargoyle(game, 8*64, 512);
+		initGargoyle(game, 6*64, 512);
 
 		// Initialization of controls
 		initControls(game);
@@ -67,7 +69,7 @@ Game.tilemap01.prototype = {
 		game.add.sprite(60, 8*64, 'shadow_left');
 
 		// Initialization of the User Interface
-		//initUI(game);
+		initUI(game);
 	},
 
 	update: function(game){

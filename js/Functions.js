@@ -1,5 +1,4 @@
 var selected_gargoyle = 1;
-var gargoyle_buttons = {};
 var still = true;
 var direction;
 
@@ -32,7 +31,27 @@ function initControls(game){
 }
 
 function initUI(game){
-	game.add.sprite(852, 0, 'hud_background');	
+	game.add.sprite(852, 0, 'hud_background').sendToBack();	
+
+	// for (i = 0; i < gargoyles.children.length; i++){
+
+	// 	game.add.button(884, 100*(i+1), '1_button', function(){}, this, 0, 0, 1, 0, gargoyle_buttons);
+
+	// 	// gargoyle_buttons.create(884, 100*(i+1), '1_button', 0, true);
+	// 	// gargoyle_buttons.setAll('anchor.x', '0.5');
+	// 	// gargoyle_buttons.setAll('anchor.y', '0.5');
+	// 	// gargoyle_buttons.setAll('inputEnableChildren', 'true');
+	// 	// gargoyle_buttons.setAll('classType', 'Phaser.Button');
+	// 	// console.log(gargoyle_buttons);
+
+	// }
+
+	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
+		gargoyle_buttons.addChild(game.add.button(884, 100*(gargoyle_id + 1), '1_button', function(){
+			gargoyleSelected(game, gargoyle_ofinterest);
+		}, 1, 1, 0, 1));
+	})
 }
 
 function gargoyleOccupation(game, gargoyle){
@@ -106,4 +125,18 @@ function movement_left(game, gargoyle){
 		gargoyle_tween.to({x:(tile_left.x * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
 		gargoyle.rotation = 3*Math.PI/2
 	}
+}
+
+function gargoyleSelected(game, gargoyleInteresting){
+	gargoyle = gargoyleInteresting;
+
+	button_pressed = gargoyle_buttons.getChildAt(gargoyles.getIndex(gargoyleInteresting));
+
+	button_pressed.setFrames(1, 1, 1);
+
+	gargoyle_buttons.forEachAlive(function(other_button){
+		if(button_pressed!=other_button){
+			other_button.setFrames(0, 0, 0);
+		}
+	})
 }
