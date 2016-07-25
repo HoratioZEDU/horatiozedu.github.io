@@ -43,12 +43,35 @@ Game.tilemap01.prototype = {
 			Game.gargoyles[3].bringToTop();
 		}*/
 
-		gargoyles = game.add.group();
-		gargoyle_buttons = game.add.group();
+		if(this.direction=='new'){
+			gargoyles = game.add.group();
+			gargoyle_buttons = game.add.group();
+			initGargoyle(game, 7*64, 512);
+			initGargoyle(game, 8*64, 512);
+			initGargoyle(game, 6*64, 512);
+			gargoyle = gargoyles.getChildAt(0);
+			initUI(game); // TODO: Manage UI on a case-by-case basis when each gargoyle dies/is gained!! Do not constantly check, it breaks it!
+		}
+		if(this.direction == 'left') {
+			var n = 1;
+			gargoyles.forEach(function(gargoyleIterable){
+				gargoyleIterable.x = ((game.math.snapToFloor((n%3), 3)*64) + 12*64 + 32);
+				gargoyleIterable.y = (((n%3))*-64) + 512 + 32;
+				gargoyleIterable.rotation = 3*Math.PI/2;
+				n += 1;
+			})
+		} else if(this.direction == 'down') {
+			var n = 1;
+			gargoyles.forEach(function(gargoyleIterable){
+				gargoyleIterable.y = ((game.math.snapToFloor((n%3), 3)*64) + 0*64 + 32);
+				gargoyleIterable.x = (((n%3))*-64) + 7*64 + 32;
+				gargoyleIterable.rotation = Math.PI;
+				n += 1;
+			})
+		}
 
-		initGargoyle(game, 7*64, 512);
-		initGargoyle(game, 8*64, 512);
-		initGargoyle(game, 6*64, 512);
+
+		game.world.bringToTop(gargoyles);
 
 		// Initialization of controls
 		initControls(game);
@@ -69,7 +92,7 @@ Game.tilemap01.prototype = {
 		game.add.sprite(60, 8*64, 'shadow_left');
 
 		// Initialization of the User Interface
-		initUI(game);
+		
 	},
 
 	update: function(game){

@@ -6,6 +6,7 @@ function initGargoyle(game, x, y){
 	gargoyles.create(x + 32, y + 32, 'gargoyle', 0, true);
 	gargoyles.setAll('anchor.x', '0.5');
 	gargoyles.setAll('anchor.y', '0.5');
+	gargoyle = gargoyles.getChildAt(0);
 }
 
 function initControls(game){
@@ -20,8 +21,6 @@ function initControls(game){
 		third: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
 	}	
 	cursors = game.input.keyboard.createCursorKeys();
-
-	gargoyle = gargoyles.getChildAt(0);
 
 	controls.up.onDown.add(function(game){movement_up(game, gargoyle)}); 		
 	controls.down.onDown.add(function(game){movement_down(game, gargoyle)});
@@ -65,7 +64,6 @@ function moveToNewRoom(game, direction){
 	while('tilemap0'+next_room==current_room){
 		next_room = game.game.rnd.integerInRange(1, 2); 
 	}
-	console.log(direction);
 	game.game.state.start('tilemap0' + next_room, false, false, game.game, direction)
 	//TODO: Case-switch to determine case(room) and its outlets
 }	

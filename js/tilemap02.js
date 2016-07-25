@@ -1,10 +1,8 @@
 Game.tilemap02 = function(){};
 
 Game.tilemap02.prototype = {
-	init: function(game, newgame, direction){
+	init: function(game, direction){
 		game.state.states['tilemap02'].direction = direction;
-		this.direction = direction;
-		console.log(direction);
 	},
 
 	create: function(game){
@@ -17,25 +15,45 @@ Game.tilemap02.prototype = {
 		layer = map.createLayer(0);
 
 		// Initialization of the Game.gargoyles
-		for (i=0; i < Object.keys(Game.gargoyles).length; i++){
+		// for (i=0; i < Object.keys(Game.gargoyles).length; i++){
 
-			// Sorting the gargoyles and making them show up properly 
-			game.add.existing(Game.gargoyles[(i+1).toString()])
-			Game.gargoyles[(i+1).toString()].bringToTop();
-			Game.gargoyles[(i+1).toString()].anchor.setTo(0.5);
+		// 	// Sorting the gargoyles and making them show up properly 
+		// 	game.add.existing(Game.gargoyles[(i+1).toString()])
+		// 	Game.gargoyles[(i+1).toString()].bringToTop();
+		// 	Game.gargoyles[(i+1).toString()].anchor.setTo(0.5);
 
-			// Setting directions for which door they're coming out of
-			if(this.direction == 'right'){ // ---------- Right section
-				Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 32);
-				Game.gargoyles[(i+1).toString()].y = (i*-64)+ 512 + 32;
-				Game.gargoyles[(i+1).toString()].rotation = Math.PI/2;
-			} else if (this.direction == 'up'){ // ---------- Up section
-				Game.gargoyles[(i+1).toString()].y = ((game.math.snapToFloor((i%3), 3)*64) + 9*64 + 32);
-				Game.gargoyles[(i+1).toString()].x = (i*-64)+ 512 - 128 + 32;
-				Game.gargoyles[(i+1).toString()].rotation = 0;
-			}
+		// 	// Setting directions for which door they're coming out of
+		// 	if(this.direction == 'right'){ // ---------- Right section
+		// 		Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 32);
+		// 		Game.gargoyles[(i+1).toString()].y = (i*-64)+ 512 + 32;
+		// 		Game.gargoyles[(i+1).toString()].rotation = Math.PI/2;
+		// 	} else if (this.direction == 'up'){ // ---------- Up section
+		// 		Game.gargoyles[(i+1).toString()].y = ((game.math.snapToFloor((i%3), 3)*64) + 9*64 + 32);
+		// 		Game.gargoyles[(i+1).toString()].x = (i*-64)+ 512 - 128 + 32;
+		// 		Game.gargoyles[(i+1).toString()].rotation = 0;
+		// 	}
+		// }
+		console.log(gargoyle_buttons);
+		if(this.direction == 'right') {
+			var n = 1;
+			gargoyles.forEach(function(gargoyleIterable){
+				gargoyleIterable.x = ((game.math.snapToFloor((n%3), 3)*64) + 0*64 + 32);
+				gargoyleIterable.y = (((n%3))*-64) + 512 + 32;
+				gargoyleIterable.rotation = Math.PI/2;
+				n += 1;
+			})
+		} else if(this.direction == 'up') {
+			var n = 1;
+			gargoyles.forEach(function(gargoyleIterable){
+				gargoyleIterable.y = ((game.math.snapToFloor((n%3), 3)*64) + 9*64 + 32);
+				gargoyleIterable.x = (((n%3))*-64) + 6*64 + 32;
+				gargoyleIterable.rotation = 0;
+				n += 1;
+			})
 		}
-		console.log(this.direction);
+
+		game.world.bringToTop(gargoyles);
+
 		// Initialization of controls
 		initControls(game);
 
@@ -55,10 +73,12 @@ Game.tilemap02.prototype = {
 		game.add.sprite(60, 5*64, 'shadow_left');
 
 		// Initialization of the User Interface
-		initUI(game);
+		//initUI(game);
 	},
 
 	update: function(game){
-		gargoyleMovement(game, Game.gargoyles[selected_gargoyle], 2);
+		for (i = 0; i < gargoyles.children.length; i++){
+			gargoyleOccupation(game, gargoyles.children[i]);
+		}
 	}
 }
