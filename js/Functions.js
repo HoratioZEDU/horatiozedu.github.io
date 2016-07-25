@@ -6,6 +6,7 @@ function initGargoyle(game, x, y){
 	gargoyles.create(x + 32, y + 32, 'gargoyle', 0, true);
 	gargoyles.setAll('anchor.x', '0.5');
 	gargoyles.setAll('anchor.y', '0.5');
+	gargoyles.setAll('health', '50');
 }
 
 function initControls(game){
@@ -18,6 +19,7 @@ function initControls(game){
 		first: game.input.keyboard.addKey(Phaser.Keyboard.ONE),
 		second: game.input.keyboard.addKey(Phaser.Keyboard.TWO),
 		third: game.input.keyboard.addKey(Phaser.Keyboard.THREE),
+		kill: game.input.keyboard.addKey(Phaser.Keyboard.V),  			// THIS ONE IS FOR DEBUGGING
 	}	
 	cursors = game.input.keyboard.createCursorKeys();
 
@@ -28,6 +30,7 @@ function initControls(game){
 	controls.first.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(0))});
 	controls.second.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(1))});
 	controls.third.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(2))});
+	controls.kill.onDown.add(function(){gargoyleDead(game, gargoyle)})
 
 }
 
@@ -49,7 +52,7 @@ function initUI(game){
 
 	gargoyles.forEachAlive(function(gargoyle_ofinterest){
 		gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
-		gargoyle_buttons.addChild(game.add.button(884, 100*(gargoyle_id + 1), '1_button', function(){
+		gargoyle_buttons.addChild(game.add.button(884, 85 + 85*(gargoyle_id), '1_button', function(){
 			gargoyleSelected(game, gargoyle_ofinterest);
 		}, 1, 1, 0, 1));
 	})
@@ -58,6 +61,22 @@ function initUI(game){
 function gargoyleOccupation(game, gargoyle){
 	gargoyle.current_tile = map.getTile(game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64, 0);
 	gargoyle.current_tile.occupied = true;
+
+	if(gargoyle.health <= 0){
+		gargoyleDead(game, gargoyle);
+	}
+}
+
+function gargoyleDead(game, gargoyle){
+	gargoyle.kill();
+	gargoyle_buttons.removeAll(true);
+	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		gargoyles.moveDown(gargoyle_ofinterest);
+		gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
+		gargoyle_buttons.addChild(game.add.button(884, 85 + 85*(gargoyle_id), '1_button', function(){
+			gargoyleSelected(game, gargoyle_ofinterest);
+		}, 1, 1, 0, 1));
+	});
 }
 
 function movement_up(game, gargoyle){
@@ -73,7 +92,7 @@ function movement_up(game, gargoyle){
 		gargoyle_tween.to({y:(tile_above.y * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
 		gargoyle.rotation = 0;
 	} 
-	console.log(gargoyles.children);
+	console.log(gargoyle.health);
 }
 
 function movement_down(game, gargoyle){
