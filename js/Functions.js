@@ -25,6 +25,9 @@ function initControls(game){
 	controls.down.onDown.add(function(game){movement_down(game, gargoyle)});
 	controls.right.onDown.add(function(game){movement_right(game, gargoyle)});
 	controls.left.onDown.add(function(game){movement_left(game, gargoyle)});
+	controls.first.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(0))});
+	controls.second.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(1))});
+	controls.third.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(2))});
 
 }
 
@@ -56,16 +59,6 @@ function gargoyleOccupation(game, gargoyle){
 	gargoyle.current_tile = map.getTile(game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64, 0);
 	gargoyle.current_tile.occupied = true;
 }
-
-function moveToNewRoom(game, direction){
-	current_room = game.game.state.getCurrentState().key;
-	next_room = game.game.rnd.integerInRange(1, 2);
-	while('tilemap0'+next_room==current_room){
-		next_room = game.game.rnd.integerInRange(1, 2); 
-	}
-	game.game.state.start('tilemap0' + next_room, false, false, game.game, direction)
-	//TODO: Case-switch to determine case(room) and its outlets
-}	
 
 function movement_up(game, gargoyle){
 	tile_above = map.getTileAbove(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
@@ -141,3 +134,44 @@ function gargoyleSelected(game, gargoyleInteresting){
 		}
 	})
 }
+
+function moveToNewRoom(game, direction){
+	// current_room = game.game.state.getCurrentState().key;
+	// next_room = game.game.rnd.integerInRange(1, 2);
+	// while('tilemap0'+next_room==current_room){
+	// 	next_room = game.game.rnd.integerInRange(1, 2); 
+	// }
+	// game.game.state.start('tilemap0' + next_room, false, false, game.game, direction)
+	current_room = game.game.state.getCurrentState().key;
+	switch(direction){
+		case 'up':
+			next_room = game.game.rnd.pick([2, 3]);
+			while('tilemap0'+next_room==current_room){
+				next_room = game.game.rnd.pick([2, 3]);
+			}
+			break;
+
+		case 'down':
+			next_room = game.game.rnd.pick([1]);
+			while('tilemap0'+next_room==current_room){
+				next_room = game.game.rnd.pick([1]);
+			}
+			break;
+
+		case 'left':
+			next_room = game.game.rnd.pick([1, 3]);
+			while('tilemap0'+next_room==current_room){
+				next_room = game.game.rnd.pick([1, 3]);
+			}
+			break;
+
+		case 'right':
+			next_room = game.game.rnd.pick([2]);
+			while('tilemap0'+next_room==current_room){
+				next_room = game.game.rnd.pick([2]);
+			}
+			break;
+	}
+	game.game.state.start('tilemap0' + next_room, false, false, game.game, direction);
+	//TODO: Case-switch to determine case(room) and its outlets
+}	

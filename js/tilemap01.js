@@ -14,43 +14,16 @@ Game.tilemap01.prototype = {
 		map.addTilesetImage('tileset');
 		layer = map.createLayer(0);
 
-		/*// Initialization of the gargoyles
-		for (i=0; i < Object.keys(Game.gargoyles).length; i++){
-
-			// Sorting the gargoyles and making them show up properly 
-			game.add.existing(Game.gargoyles[(i+1).toString()])
-			Game.gargoyles[(i+1).toString()].bringToTop();
-			Game.gargoyles[(i+1).toString()].anchor.setTo(0.5);
-
-			// Setting directions for which door they're coming out of
-			if(this.direction == 'left'){ // ---------- Left section
-				Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 12*64 + 32);
-				Game.gargoyles[(i+1).toString()].y = (((i%3))*-64)+ 512 + 32;
-				Game.gargoyles[(i+1).toString()].rotation = 3*Math.PI/2;
-			} else if (this.direction == 'down'){ // ---------- Down section
-				Game.gargoyles[(i+1).toString()].y = ((game.math.snapToFloor((i%3), 3)*64) + 32);
-				Game.gargoyles[(i+1).toString()].x = (i*-64)+ 512 - 64 + 32;
-				Game.gargoyles[(i+1).toString()].rotation = Math.PI;
-			}
-		}
-
-		if(this.direction == 'new'){
-			initGargoyle(game, true, 7*64, 512, 1);
-			Game.gargoyles[1].bringToTop();
-			initGargoyle(game, true, 6*64, 512, 2);
-			Game.gargoyles[2].bringToTop();
-			initGargoyle(game, true, 5*64, 512, 3);
-			Game.gargoyles[3].bringToTop();
-		}*/
+		// Initialization of the gargoyles
 
 		if(this.direction=='new'){
 			gargoyles = game.add.group();
 			gargoyle_buttons = game.add.group();
-			initGargoyle(game, 7*64, 512);
-			initGargoyle(game, 8*64, 512);
+			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
-			gargoyle = gargoyles.getChildAt(0);
-			initUI(game); // TODO: Manage UI on a case-by-case basis when each gargoyle dies/is gained!! Do not constantly check, it breaks it!
+			initGargoyle(game, 7*64, 512);
+			initUI(game);						 // TODO: Manage UI on a case-by-case basis when each gargoyle dies/is gained!! Do not constantly check, it breaks it!
+			gargoyleSelected(game, gargoyles.getChildAt(0));
 		}
 		if(this.direction == 'left') {
 			var n = 1;
@@ -90,8 +63,6 @@ Game.tilemap01.prototype = {
 		game.add.sprite(60, 6*64, 'shadow_left');
 		game.add.sprite(60, 7*64, 'shadow_left');
 		game.add.sprite(60, 8*64, 'shadow_left');
-
-		// Initialization of the User Interface
 		
 	},
 

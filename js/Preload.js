@@ -12,7 +12,7 @@ Game.Preload.prototype = {
 		this.load.setPreloadSprite(this.preloadBar);
 
 		// Loading assets
-		this.load.spritesheet('start_button', 'assets/spritesheets/start_button.png', 196, 91);
+		this.load.spritesheet('start_button', 'assets/spritesheets/start_button.png', 286, 106);
 		this.load.spritesheet('gargoyle', 'assets/spritesheets/gargoyle.png', 78, 78, 4);
 		this.load.spritesheet('1_button', 'assets/spritesheets/1_button.png', 64, 64, 2);
 		//this.load.spritesheet('enemy_spearman', 'assets/spritesheets/spearman.png', 71, 79, 5);
@@ -25,6 +25,7 @@ Game.Preload.prototype = {
 		this.load.image('soul_bar', 'assets/images/hud_souls.png');
 		this.load.tilemap('tilemap01', 'assets/maps/tilemap01.csv');
 		this.load.tilemap('tilemap02', 'assets/maps/tilemap02.csv');
+		this.load.tilemap('tilemap03', 'assets/maps/tilemap03.csv');
 
 	}, 
 
