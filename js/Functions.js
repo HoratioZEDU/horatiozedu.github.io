@@ -6,7 +6,6 @@ function initGargoyle(game, x, y){
 	gargoyles.create(x + 32, y + 32, 'gargoyle', 0, true);
 	gargoyles.setAll('anchor.x', '0.5');
 	gargoyles.setAll('anchor.y', '0.5');
-	gargoyle = gargoyles.getChildAt(0);
 }
 
 function initControls(game){
@@ -70,8 +69,9 @@ function moveToNewRoom(game, direction){
 
 function movement_up(game, gargoyle){
 	tile_above = map.getTileAbove(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
-	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}													// Making sure gargoyle_tween is defined
-	if(tile_above==null){moveToNewRoom(game, 'up')}																			// Checking if you're sauntering off into the inky blackness
+	gargoyle.current_tile.occupied = false;
+	if(tile_above==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'up')}
+	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}													// Making sure gargoyle_tween is defined																			// Checking if you're sauntering off into the inky blackness
 	if((typeof tile_above.occupied == "undefined" || tile_above.occupied == false) && tile_above.index<=8 && gargoyle_tween.isRunning == false){			// Screaming, just screaming
 		gargoyle_tween = game.game.add.tween(gargoyle);
 		gargoyle_tween.onComplete.add(function(){
@@ -85,8 +85,9 @@ function movement_up(game, gargoyle){
 
 function movement_down(game, gargoyle){
 	tile_below = map.getTileBelow(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
+	gargoyle.current_tile.occupied = false;
+	if(tile_below==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'down')}
 	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}
-	if(tile_below==null){moveToNewRoom(game, 'down')}
 	if((typeof tile_below.occupied == "undefined" || tile_below.occupied == false) && tile_below.index<=8 && gargoyle_tween.isRunning == false){
 		gargoyle_tween = game.game.add.tween(gargoyle);
 		gargoyle_tween.onComplete.add(function(){
@@ -99,8 +100,9 @@ function movement_down(game, gargoyle){
 
 function movement_right(game, gargoyle){
 	tile_right = map.getTileRight(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
+	gargoyle.current_tile.occupied = false;
 	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}
-	if(tile_right==null){moveToNewRoom(game, 'right')}
+	if(tile_right==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'right')}
 	if((typeof tile_right.occupied == "undefined" || tile_right.occupied == false) && tile_right.index<=8 && gargoyle_tween.isRunning == false){
 		gargoyle_tween = game.game.add.tween(gargoyle);
 		gargoyle_tween.onComplete.add(function(){
@@ -113,8 +115,9 @@ function movement_right(game, gargoyle){
 
 function movement_left(game, gargoyle){
 	tile_left = map.getTileLeft(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
+	gargoyle.current_tile.occupied = false;
+	if(tile_left==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'left')}
 	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}
-	if(tile_left==null){moveToNewRoom(game, 'left')}
 	if((typeof tile_left.occupied == "undefined" || tile_left.occupied == false) && tile_left.index<=8 && gargoyle_tween.isRunning == false){	
 		gargoyle_tween = game.game.add.tween(gargoyle);
 		gargoyle_tween.onComplete.add(function(){
