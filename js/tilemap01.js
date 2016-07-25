@@ -19,6 +19,8 @@ Game.tilemap01.prototype = {
 		if(this.direction=='new'){
 			gargoyles = game.add.group();
 			gargoyle_buttons = game.add.group();
+			gargoyle_hp_bars = game.add.group();
+			gargoyle_soul_bars = game.add.group();
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
 			initGargoyle(game, 7*64, 512);

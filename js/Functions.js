@@ -7,6 +7,7 @@ function initGargoyle(game, x, y){
 	gargoyles.setAll('anchor.x', '0.5');
 	gargoyles.setAll('anchor.y', '0.5');
 	gargoyles.setAll('health', '50');
+	gargoyles.callAll('animations.add', 'animations', 'die', [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], 10, false);
 }
 
 function initControls(game){
@@ -30,7 +31,7 @@ function initControls(game){
 	controls.first.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(0))});
 	controls.second.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(1))});
 	controls.third.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(2))});
-	controls.kill.onDown.add(function(){gargoyleDead(game, gargoyle)})
+	controls.kill.onDown.add(function(){gargoyle.health -= 5})  // THIS IS ALSO FOR DEBUGGING
 
 }
 
@@ -51,10 +52,16 @@ function initUI(game){
 	// }
 
 	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		gargoyle_ofinterest.souls = 100;
 		gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
 		gargoyle_buttons.addChild(game.add.button(884, 85 + 85*(gargoyle_id), '1_button', function(){
 			gargoyleSelected(game, gargoyle_ofinterest);
 		}, 1, 1, 0, 1));
+		gargoyle_ofinterest.hp_bar = game.add.bitmapData(50*3, 8);
+		gargoyle_ofinterest.soul_bar = game.add.bitmapData(50*3, 8);
+		gargoyle_hp_bars.addChild(game.add.sprite(984, 95 + 85*(gargoyle_id), gargoyle_ofinterest.hp_bar));
+		gargoyle_soul_bars.addChild(game.add.sprite(984, 115 + 85*(gargoyle_id), gargoyle_ofinterest.soul_bar));
+		// TODO: Add a sprite to be the background of the bar
 	})
 }
 
@@ -63,19 +70,34 @@ function gargoyleOccupation(game, gargoyle){
 	gargoyle.current_tile.occupied = true;
 
 	if(gargoyle.health <= 0){
-		gargoyleDead(game, gargoyle);
+		gargoyle.animations.play('die').onComplete.add(function(){gargoyleDead(game, gargoyle)});
 	}
+
+	
+	gargoyle.hp_bar.context.clearRect(0, 0, gargoyle.hp_bar.width, gargoyle.hp_bar.height);
+	gargoyle.hp_bar.context.fillStyle = '#f00';
+	gargoyle.hp_bar.context.fillRect(0, 0, gargoyle.health*3, 8);
+	gargoyle.soul_bar.context.clearRect(0, 0, gargoyle.soul_bar.width, gargoyle.soul_bar.height);
+	gargoyle.soul_bar.context.fillStyle = '#00f';
+	gargoyle.soul_bar.context.fillRect(0, 0, gargoyle.souls*(150/100), 8);
+	
 }
 
 function gargoyleDead(game, gargoyle){
-	gargoyle.kill();
+	gargoyle.destroy();
 	gargoyle_buttons.removeAll(true);
-	gargoyles.forEachAlive(function(gargoyle_ofinterest){
-		gargoyles.moveDown(gargoyle_ofinterest);
+	gargoyle_hp_bars.removeAll(true);
+	gargoyle_soul_bars.removeAll(true);
+	gargoyles.forEach(function(gargoyle_ofinterest){
+		//gargoyles.moveDown(gargoyle_ofinterest);
 		gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
 		gargoyle_buttons.addChild(game.add.button(884, 85 + 85*(gargoyle_id), '1_button', function(){
 			gargoyleSelected(game, gargoyle_ofinterest);
 		}, 1, 1, 0, 1));
+		gargoyle_ofinterest.hp_bar = game.add.bitmapData(50*3, 8);
+		gargoyle_ofinterest.soul_bar = game.add.bitmapData(50*3, 8);
+		gargoyle_hp_bars.addChild(game.add.sprite(984, 95 + 85*(gargoyle_id), gargoyle_ofinterest.hp_bar));
+		gargoyle_soul_bars.addChild(game.add.sprite(984, 115 + 85*(gargoyle_id), gargoyle_ofinterest.soul_bar));
 	});
 }
 
@@ -191,6 +213,11 @@ function moveToNewRoom(game, direction){
 			}
 			break;
 	}
+
+	gargoyles.forEach(function(gargoyle){
+		gargoyle.souls -= 35;
+	})
+
 	game.game.state.start('tilemap0' + next_room, false, false, game.game, direction);
 	//TODO: Case-switch to determine case(room) and its outlets
 }	

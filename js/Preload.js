@@ -13,7 +13,7 @@ Game.Preload.prototype = {
 
 		// Loading assets
 		this.load.spritesheet('start_button', 'assets/spritesheets/start_button.png', 286, 106);
-		this.load.spritesheet('gargoyle', 'assets/spritesheets/gargoyle.png', 78, 78, 4);
+		this.load.spritesheet('gargoyle', 'assets/spritesheets/gargoyle.png', 78, 78, 28);
 		this.load.spritesheet('1_button', 'assets/spritesheets/1_button.png', 64, 64, 2);
 		//this.load.spritesheet('enemy_spearman', 'assets/spritesheets/spearman.png', 71, 79, 5);
 		this.load.image('tileset', 'assets/maps/tileset.png');
