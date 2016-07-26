@@ -129,6 +129,9 @@ function enemyMovement(game, enemy){
 	enemy.current_tile.occupied = false;
 	enemy.current_tile.inhabitedBy = null;
 
+	console.log(closest_gargoyle);
+	console.log(enemy_tile_left.inhabitedBy);
+
 	if(closest_gargoyle == enemy_tile_above.inhabitedBy){
 		enemy_tile_above.inhabitedBy.health -= 10;
 		enemy.rotation = 0;
@@ -188,7 +191,6 @@ function enemyMovement(game, enemy){
 function movement_up(game, gargoyle){
 	tile_above = map.getTileAbove(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false;
-	gargoyle.current_tile.inhabitedBy = null;
 	if(tile_above==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'up')}
 	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}													// Making sure gargoyle_tween is defined																			// Checking if you're sauntering off into the inky blackness
 	if((typeof tile_above.occupied == "undefined" || tile_above.occupied == false) && tile_above.index<=8 && gargoyle_tween.isRunning == false){			// Screaming, just screaming
@@ -204,6 +206,7 @@ function movement_up(game, gargoyle){
 		gargoyle.animations.play('punch');
 		tile_above.inhabitedBy.health -= 25
 		gargoyle.rotation = 0;
+		gargoyle.current_tile.occupied = true;
 		enemySpearmen.forEachAlive(function(enemy){
 			enemyMovement(game, enemy);
 		})
@@ -214,12 +217,12 @@ function movement_up(game, gargoyle){
 			enemyMovement(game, enemy);
 		})
 	}
+	gargoyle.current_tile.inhabitedBy = null;
 }
 
 function movement_down(game, gargoyle){
 	tile_below = map.getTileBelow(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false;
-	gargoyle.current_tile.inhabitedBy = null;
 	if(tile_below==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'down')}
 	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}
 	if((typeof tile_below.occupied == "undefined" || tile_below.occupied == false) && tile_below.index<=8 && gargoyle_tween.isRunning == false){
@@ -235,6 +238,7 @@ function movement_down(game, gargoyle){
 		gargoyle.animations.play('punch');
 		tile_below.inhabitedBy.health -= 25
 		gargoyle.rotation = Math.PI;
+		gargoyle.current_tile.occupied = true;
 		enemySpearmen.forEachAlive(function(enemy){
 			enemyMovement(game, enemy);
 		})
@@ -245,12 +249,12 @@ function movement_down(game, gargoyle){
 			enemyMovement(game, enemy);
 		})
 	}
+	gargoyle.current_tile.inhabitedBy = null;
 }
 
 function movement_right(game, gargoyle){
 	tile_right = map.getTileRight(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false;
-	gargoyle.current_tile.inhabitedBy = null;
 	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}
 	if(tile_right==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'right')}
 	if((typeof tile_right.occupied == "undefined" || tile_right.occupied == false) && tile_right.index<=8 && gargoyle_tween.isRunning == false){
@@ -266,6 +270,7 @@ function movement_right(game, gargoyle){
 		gargoyle.animations.play('punch');
 		tile_right.inhabitedBy.health -= 25
 		gargoyle.rotation = Math.PI/2;
+		gargoyle.current_tile.occupied = true;
 		enemySpearmen.forEachAlive(function(enemy){
 			enemyMovement(game, enemy);
 		})
@@ -276,12 +281,12 @@ function movement_right(game, gargoyle){
 			enemyMovement(game, enemy);
 		})
 	}
+	gargoyle.current_tile.inhabitedBy = null;
 }
 
 function movement_left(game, gargoyle){
 	tile_left = map.getTileLeft(0, game.game.math.snapToFloor(gargoyle.x, 64) / 64, game.game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false;
-	gargoyle.current_tile.inhabitedBy = null;
 	if(tile_left==null && gargoyle_tween.isRunning == false){moveToNewRoom(game, 'left')}
 	if(typeof gargoyle_tween==="undefined"){gargoyle_tween = game.game.add.tween(gargoyle);}
 	if((typeof tile_left.occupied == "undefined" || tile_left.occupied == false) && tile_left.index<=8 && gargoyle_tween.isRunning == false){	
@@ -297,6 +302,7 @@ function movement_left(game, gargoyle){
 		gargoyle.animations.play('punch');
 		tile_left.inhabitedBy.health -= 25
 		gargoyle.rotation = 3*Math.PI/2;
+		gargoyle.current_tile.occupied = true;
 		enemySpearmen.forEachAlive(function(enemy){
 			enemyMovement(game, enemy);
 		})
@@ -307,6 +313,7 @@ function movement_left(game, gargoyle){
 			enemyMovement(game, enemy);
 		})
 	}
+	gargoyle.current_tile.inhabitedBy = null;
 }
 
 function gargoyleSelected(game, gargoyleInteresting){
