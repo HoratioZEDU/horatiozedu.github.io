@@ -15,12 +15,12 @@ Game.tilemap01.prototype = {
 		layer = map.createLayer(0);
 
 		// Initialization of the gargoyles
-
 		if(this.direction=='new'){
 			gargoyles = game.add.group();
 			gargoyle_buttons = game.add.group();
 			gargoyle_hp_bars = game.add.group();
 			gargoyle_soul_bars = game.add.group();
+			enemySpearmen = game.add.group();
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
 			initGargoyle(game, 7*64, 512);
@@ -45,8 +45,10 @@ Game.tilemap01.prototype = {
 			})
 		}
 
-
 		game.world.bringToTop(gargoyles);
+
+		// Initialization of enemies
+		initEnemySpearman(game, 6*64, 5*64);
 
 		// Initialization of controls
 		initControls(game);
@@ -71,6 +73,9 @@ Game.tilemap01.prototype = {
 	update: function(game){
 		for (i = 0; i < gargoyles.children.length; i++){
 			gargoyleOccupation(game, gargoyles.children[i]);
+		}
+		for (i = 0; i < enemySpearmen.children.length; i++){
+			enemyOccupation(game, enemySpearmen.children[i]);
 		}
 	}
 }
