@@ -25,7 +25,7 @@ Game.tilemap01.prototype = {
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
 			initGargoyle(game, 7*64, 512);
-			initUI(game);						 // TODO: Manage UI on a case-by-case basis when each gargoyle dies/is gained!! Do not constantly check, it breaks it!
+			initUI(game);						 				// Manage UI on a case-by-case basis when each gargoyle dies/is gained!! Do not constantly check, it breaks it!
 			gargoyleSelected(game, gargoyles.getChildAt(0));
 		}
 		if(this.direction == 'left') {
@@ -49,7 +49,11 @@ Game.tilemap01.prototype = {
 		game.world.bringToTop(gargoyles);
 
 		// Initialization of enemies
-		initEnemySpearman(game, 6*64, 5*64);
+		initEnemySpearman(game, 6*64, 5*64, Math.PI);
+		initEnemySpearman(game, 4*64, 1*64, Math.PI);
+		initEnemySpearman(game, 8*64, 1*64, Math.PI);
+
+		game.world.bringToTop(enemySpearmen);
 
 		// Initialization of controls
 		initControls(game);
