@@ -20,6 +20,7 @@ Game.tilemap01.prototype = {
 			gargoyle_buttons = game.add.group();
 			gargoyle_hp_bars = game.add.group();
 			gargoyle_soul_bars = game.add.group();
+			gargoyle_ui_bg = game.add.group();
 			enemySpearmen = game.add.group();
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
