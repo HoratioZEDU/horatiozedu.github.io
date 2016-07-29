@@ -76,5 +76,9 @@ Game.tilemap03.prototype = {
 		for (i = 0; i < gargoyles.children.length; i++){
 			gargoyleOccupation(game, gargoyles.children[i]);
 		}
+
+		for (i = 0; i < enemySpearmen.children.length; i++){
+			enemyOccupation(game, enemySpearmen.children[i]);
+		}
 	}
 }

@@ -14,26 +14,8 @@ Game.tilemap02.prototype = {
 		map.addTilesetImage('tileset');
 		layer = map.createLayer(0);
 
-		// Initialization of the Game.gargoyles
-		// for (i=0; i < Object.keys(Game.gargoyles).length; i++){
+		// Initialization of gargoyles
 
-		// 	// Sorting the gargoyles and making them show up properly 
-		// 	game.add.existing(Game.gargoyles[(i+1).toString()])
-		// 	Game.gargoyles[(i+1).toString()].bringToTop();
-		// 	Game.gargoyles[(i+1).toString()].anchor.setTo(0.5);
-
-		// 	// Setting directions for which door they're coming out of
-		// 	if(this.direction == 'right'){ // ---------- Right section
-		// 		Game.gargoyles[(i+1).toString()].x = ((game.math.snapToFloor((i%3), 3)*64) + 32);
-		// 		Game.gargoyles[(i+1).toString()].y = (i*-64)+ 512 + 32;
-		// 		Game.gargoyles[(i+1).toString()].rotation = Math.PI/2;
-		// 	} else if (this.direction == 'up'){ // ---------- Up section
-		// 		Game.gargoyles[(i+1).toString()].y = ((game.math.snapToFloor((i%3), 3)*64) + 9*64 + 32);
-		// 		Game.gargoyles[(i+1).toString()].x = (i*-64)+ 512 - 128 + 32;
-		// 		Game.gargoyles[(i+1).toString()].rotation = 0;
-		// 	}
-		// }
-		console.log(gargoyle_buttons);
 		if(this.direction == 'right') {
 			var n = 1;
 			gargoyles.forEach(function(gargoyleIterable){
@@ -79,6 +61,10 @@ Game.tilemap02.prototype = {
 	update: function(game){
 		for (i = 0; i < gargoyles.children.length; i++){
 			gargoyleOccupation(game, gargoyles.children[i]);
+		}
+
+		for (i = 0; i < enemySpearmen.children.length; i++){
+			enemyOccupation(game, enemySpearmen.children[i]);
 		}
 	}
 }

@@ -22,10 +22,9 @@ Game.Preload.prototype = {
 		this.load.image('hud_background', 'assets/images/hud_background.png');
 		this.load.image('shadow_right', 'assets/images/shadow1.png');
 		this.load.image('shadow_left', 'assets/images/shadow2.png');
-		this.load.image('hp_bar', 'assets/images/hp_bar.png');
-		this.load.image('back_bar', 'assets/images/hud_back_bar.png');
-		this.load.image('soul_bar', 'assets/images/hud_souls.png');
 		this.load.image('hud_overlay', 'assets/images/hud_overlay.png');
+		this.load.image('hp_icon', 'assets/images/hp_icon.png');
+		this.load.image('soul_icon', 'assets/images/soul_icon.png');
 		this.load.tilemap('tilemap01', 'assets/maps/tilemap01.csv');
 		this.load.tilemap('tilemap02', 'assets/maps/tilemap02.csv');
 		this.load.tilemap('tilemap03', 'assets/maps/tilemap03.csv');
