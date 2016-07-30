@@ -118,25 +118,25 @@ function gargoyleOccupation(game, gargoyle){
 	}
 
 	if(gargoyle.protecting == true){
-		if(typeof gargoyle.tile_above.inhabitedBy != "undefined" && gargoyle.tile_above.inhabitedBy != null){
+		if(gargoyle.tile_above != null && typeof gargoyle.tile_above.inhabitedBy != "undefined" && gargoyle.tile_above.inhabitedBy != null){
 			if(gargoyle.tile_above.inhabitedBy.protectedflag == false){
 				gargoyle.tile_above.inhabitedBy.protectedflag = true;
 				gargoyle.tile_above.inhabitedBy.protectedBy = gargoyle;
 			}
 		}
-		if(typeof gargoyle.tile_below.inhabitedBy != "undefined" && gargoyle.tile_below.inhabitedBy != null){
+		if(gargoyle.tile_below != null && typeof gargoyle.tile_below.inhabitedBy != "undefined" && gargoyle.tile_below.inhabitedBy != null){
 			if(gargoyle.tile_below.inhabitedBy.protectedflag == false){
 				gargoyle.tile_below.inhabitedBy.protectedflag = true;
 				gargoyle.tile_below.inhabitedBy.protectedBy = gargoyle;
 			}
 		}
-		if(typeof gargoyle.tile_right.inhabitedBy != "undefined" && gargoyle.tile_right.inhabitedBy != null){
+		if(gargoyle.tile_right != null && typeof gargoyle.tile_right.inhabitedBy != "undefined" && gargoyle.tile_right.inhabitedBy != null){
 			if(gargoyle.tile_right.inhabitedBy.protectedflag == false){
 				gargoyle.tile_right.inhabitedBy.protectedflag = true;
 				gargoyle.tile_right.inhabitedBy.protectedBy = gargoyle;
 			}
 		}
-		if(typeof gargoyle.tile_left.inhabitedBy != "undefined" && gargoyle.tile_left.inhabitedBy != null){
+		if(gargoyle.tile_left != null && typeof gargoyle.tile_left.inhabitedBy != "undefined" && gargoyle.tile_left.inhabitedBy != null){
 			if(gargoyle.tile_left.inhabitedBy.protectedflag == false){
 				gargoyle.tile_left.inhabitedBy.protectedflag = true;
 				gargoyle.tile_left.inhabitedBy.protectedBy = gargoyle;
@@ -300,155 +300,159 @@ function enemyMovement(game, enemy){
 }
 
 function movement_up(game, gargoyle){
-	tile_above = map.getTileAbove(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false;
-	if(tile_above==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'up')}
+	if(gargoyle.tile_above==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'up')}
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}													// Making sure gargoyle.gargoyle_tween is defined																			// Checking if you're sauntering off into the inky blackness
-	if((typeof tile_above.occupied == "undefined" || tile_above.occupied == false) && tile_above.index<=8 && gargoyle.gargoyle_tween.isRunning == false){			// Screaming, just screaming
-		gargoyle.gargoyle_tween = game.add.tween(gargoyle);
-		gargoyle.gargoyle_tween.onComplete.add(function(){
-			map.getTileBelow(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
-			map.getTileBelow(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
-		})
-		gargoyle.gargoyle_tween.to({y:(tile_above.y * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
-		gargoyle.rotation = 0;
-	} 
-	if(tile_above.occupied = true && tile_above.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){			// Attacking
-		gargoyle.animations.play('punch');
-		if(gargoyle.opportunism == true && tile_above.inhabitedBy.rotation != Math.PI){
-			gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
-		} else if(gargoyle.heavy_iterable>=1){
-			gargoyle.damage = 20*(1 + gargoyle.heavy_iterable/2) + game.rnd.integerInRange(-5, gargoyle.str * 2 * gargoyle.heavy_iterable);
-		} else {
-			gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+	if(gargoyle.tile_above!=null){
+		if((typeof gargoyle.tile_above.occupied == "undefined" || gargoyle.tile_above.occupied == false) && gargoyle.tile_above.index<=8 && gargoyle.gargoyle_tween.isRunning == false){			// Screaming, just screaming
+			gargoyle.gargoyle_tween = game.add.tween(gargoyle);
+			gargoyle.gargoyle_tween.onComplete.add(function(){
+				map.getTileBelow(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
+				map.getTileBelow(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
+			})
+			gargoyle.gargoyle_tween.to({y:(gargoyle.tile_above.y * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
+			gargoyle.rotation = 0;
+		} 
+		if(gargoyle.tile_above.occupied = true && gargoyle.tile_above.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){			// Attacking
+			gargoyle.animations.play('punch');
+			if(gargoyle.opportunism == true && gargoyle.tile_above.inhabitedBy.rotation != Math.PI){
+				gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
+			} else if(gargoyle.heavy_iterable>=1){
+				gargoyle.damage = 20*(1 + gargoyle.heavy_iterable/2) + game.rnd.integerInRange(-5, gargoyle.str * 2 * gargoyle.heavy_iterable);
+			} else {
+				gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+			}
+			gargoyle.tile_above.inhabitedBy.health -= gargoyle.damage;
+			gargoyle.rotation = 0;
+			gargoyle.current_tile.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
 		}
-		tile_above.inhabitedBy.health -= gargoyle.damage;
-		gargoyle.rotation = 0;
-		gargoyle.current_tile.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
-	}
-	if(gargoyle.gargoyle_tween.isRunning==true){																			// Enemy movement
-		tile_above.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
+		if(gargoyle.gargoyle_tween.isRunning==true){																			// Enemy movement
+			gargoyle.tile_above.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+		}
 	}
 	if(gargoyle.heavy_iterable >= 0){gargoyle.heavy_iterable=0}
 	gargoyle.current_tile.inhabitedBy = null;
 }
 
 function movement_down(game, gargoyle){
-	tile_below = map.getTileBelow(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false;
-	if(tile_below==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'down')}
+	if(gargoyle.tile_below==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'down')}
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}
-	if((typeof tile_below.occupied == "undefined" || tile_below.occupied == false) && tile_below.index<=8 && gargoyle.gargoyle_tween.isRunning == false){
-		gargoyle.gargoyle_tween = game.add.tween(gargoyle);
-		gargoyle.gargoyle_tween.onComplete.add(function(){
-			map.getTileAbove(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
-			map.getTileAbove(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
-		})
-		gargoyle.gargoyle_tween.to({y:(tile_below.y * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
-		gargoyle.rotation = Math.PI;
-	}
-	if(tile_below.occupied = true && tile_below.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){
-		gargoyle.animations.play('punch');
-		if(gargoyle.opportunism == true && tile_below.inhabitedBy.rotation != 0){
-			gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
-		} else {
-			gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+	if(gargoyle.tile_below!= null){
+		if((typeof gargoyle.tile_below.occupied == "undefined" || gargoyle.tile_below.occupied == false) && gargoyle.tile_below.index<=8 && gargoyle.gargoyle_tween.isRunning == false){
+			gargoyle.gargoyle_tween = game.add.tween(gargoyle);
+			gargoyle.gargoyle_tween.onComplete.add(function(){
+				map.getTileAbove(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
+				map.getTileAbove(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
+			})
+			gargoyle.gargoyle_tween.to({y:(gargoyle.tile_below.y * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
+			gargoyle.rotation = Math.PI;
 		}
-		tile_below.inhabitedBy.health -= gargoyle.damage;
-		gargoyle.rotation = Math.PI;
-		gargoyle.current_tile.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
-	}
-	if(gargoyle.gargoyle_tween.isRunning==true){
-		tile_below.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
+		if(gargoyle.tile_below.occupied = true && gargoyle.tile_below.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){
+			gargoyle.animations.play('punch');
+			if(gargoyle.opportunism == true && gargoyle.tile_below.inhabitedBy.rotation != 0){
+				gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
+			} else {
+				gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+			}
+			gargoyle.tile_below.inhabitedBy.health -= gargoyle.damage;
+			gargoyle.rotation = Math.PI;
+			gargoyle.current_tile.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+		}
+		if(gargoyle.gargoyle_tween.isRunning==true){
+			gargoyle.tile_below.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+		}
 	}
 	if(gargoyle.heavy_iterable >= 0){gargoyle.heavy_iterable=0}
 	gargoyle.current_tile.inhabitedBy = null;
 }
 
 function movement_right(game, gargoyle){
-	tile_right = map.getTileRight(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false;
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}
-	if(tile_right==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'right')}
-	if((typeof tile_right.occupied == "undefined" || tile_right.occupied == false) && tile_right.index<=8 && gargoyle.gargoyle_tween.isRunning == false){
-		gargoyle.gargoyle_tween = game.add.tween(gargoyle);
-		gargoyle.gargoyle_tween.onComplete.add(function(){
-			map.getTileLeft(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
-			map.getTileLeft(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
-		})
-		gargoyle.gargoyle_tween.to({x:(tile_right.x * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
-		gargoyle.rotation = Math.PI/2;
-	}
-	if(tile_right.occupied = true && tile_right.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){
-		gargoyle.animations.play('punch');
-		if(gargoyle.opportunism == true && tile_right.inhabitedBy.rotation != 3*Math.PI/2){
-			gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
-			console.log(gargoyle.damage);
-		} else {
-			gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+	if(gargoyle.tile_right==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'right')}
+	if(gargoyle.tile_right!=null){
+		if((typeof gargoyle.tile_right.occupied == "undefined" || gargoyle.tile_right.occupied == false) && gargoyle.tile_right.index<=8 && gargoyle.gargoyle_tween.isRunning == false){
+			gargoyle.gargoyle_tween = game.add.tween(gargoyle);
+			gargoyle.gargoyle_tween.onComplete.add(function(){
+				map.getTileLeft(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
+				map.getTileLeft(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
+			})
+			gargoyle.gargoyle_tween.to({x:(gargoyle.tile_right.x * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
+			gargoyle.rotation = Math.PI/2;
 		}
-		tile_right.inhabitedBy.health -= gargoyle.damage;
-		gargoyle.rotation = Math.PI/2;
-		gargoyle.current_tile.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
-	}
-	if(gargoyle.gargoyle_tween.isRunning==true){
-		tile_right.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
+		if(gargoyle.tile_right.occupied = true && gargoyle.tile_right.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){
+			gargoyle.animations.play('punch');
+			if(gargoyle.opportunism == true && gargoyle.tile_right.inhabitedBy.rotation != 3*Math.PI/2){
+				gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
+				console.log(gargoyle.damage);
+			} else {
+				gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+			}
+			gargoyle.tile_right.inhabitedBy.health -= gargoyle.damage;
+			gargoyle.rotation = Math.PI/2;
+			gargoyle.current_tile.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+		}
+		if(gargoyle.gargoyle_tween.isRunning==true){
+			gargoyle.tile_right.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+		}
 	}
 	if(gargoyle.heavy_iterable >= 0){gargoyle.heavy_iterable=0}
 	gargoyle.current_tile.inhabitedBy = null;
 }
 
 function movement_left(game, gargoyle){
-	tile_left = map.getTileLeft(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
 	gargoyle.current_tile.occupied = false; 
-	if(tile_left==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'left')}
+	if(gargoyle.tile_left==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'left')}
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}
-	if((typeof tile_left.occupied == "undefined" || tile_left.occupied == false) && tile_left.index<=8 && gargoyle.gargoyle_tween.isRunning == false){	
-		gargoyle.gargoyle_tween = game.add.tween(gargoyle);
-		gargoyle.gargoyle_tween.onComplete.add(function(){
-			map.getTileRight(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
-			map.getTileRight(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
-		})
-		gargoyle.gargoyle_tween.to({x:(tile_left.x * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
-		gargoyle.rotation = 3*Math.PI/2
-	}
-	if(tile_left.occupied = true && tile_left.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){
-		gargoyle.animations.play('punch');
-		if(gargoyle.opportunism == true && tile_left.inhabitedBy.rotation != Math.PI/2){
-			gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
-		} else {
-			gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+	if(gargoyle.tile_left!=null){
+		if((typeof gargoyle.tile_left.occupied == "undefined" || gargoyle.tile_left.occupied == false) && gargoyle.tile_left.index<=8 && gargoyle.gargoyle_tween.isRunning == false){	
+			gargoyle.gargoyle_tween = game.add.tween(gargoyle);
+			gargoyle.gargoyle_tween.onComplete.add(function(){
+				map.getTileRight(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).occupied = false;
+				map.getTileRight(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64).inhabitedBy = null;
+			})
+			gargoyle.gargoyle_tween.to({x:(gargoyle.tile_left.x * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
+			gargoyle.rotation = 3*Math.PI/2
 		}
-		tile_left.inhabitedBy.health -= gargoyle.damage;
-		gargoyle.rotation = 3*Math.PI/2;
-		gargoyle.current_tile.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
-	}
-	if(gargoyle.gargoyle_tween.isRunning==true){
-		tile_left.occupied = true;
-		enemySpearmen.forEachAlive(function(enemy){
-			enemyMovement(game, enemy);
-		})
+		if(gargoyle.tile_left.occupied = true && gargoyle.tile_left.inhabitedBy!=null && gargoyle.gargoyle_tween.isRunning == false){
+			gargoyle.animations.play('punch');
+			if(gargoyle.opportunism == true && gargoyle.tile_left.inhabitedBy.rotation != Math.PI/2){
+				gargoyle.damage = 30 + game.rnd.integerInRange(5, gargoyle.str * 3);
+			} else {
+				gargoyle.damage = 20 + game.rnd.integerInRange(-5, gargoyle.str * 2);
+			}
+			gargoyle.tile_left.inhabitedBy.health -= gargoyle.damage;
+			gargoyle.rotation = 3*Math.PI/2;
+			gargoyle.current_tile.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+		}
+		if(gargoyle.gargoyle_tween.isRunning==true){
+			gargoyle.tile_left.occupied = true;
+			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+		}
 	}
 	if(gargoyle.heavy_iterable >= 0){gargoyle.heavy_iterable=0}
 	gargoyle.current_tile.inhabitedBy = null;
@@ -591,9 +595,7 @@ function moveToNewRoom(game, direction){
 		gargoyle.souls -= 35;
 	})
 
-	enemySpearmen.forEach(function(spearman){
-		spearman.health -= 100;
-	})
+	enemySpearmen.destroy();
 
 	game.state.start('tilemap0' + next_room, false, false, game, direction);
 }	
