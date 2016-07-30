@@ -515,7 +515,7 @@ function shootSpell(game, gargoyle, spell){
 			gargoyle.protecting = true;
 			break;
 		case 'healing_spell':
-			healspell(game, gargoyle);
+			if(game.time.now > actionTimer){actionTimer = game.time.now + 600;healspell(game, gargoyle);};
 			break;
 	}
 }
@@ -528,29 +528,37 @@ function undoAllStances(game, gargoyle){
 }
 
 function healspell(game, gargoyle){
-	if(typeof gargoyle.tile_above.inhabitedBy != "undefined" && gargoyle.tile_above.inhabitedBy.key == 'gargoyle'){
-		gargoyle.tile_above.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
-		healsprite_above = game.add.sprite(gargoyle.tile_above.x * 64, gargoyle.tile_above.y * 64, 'healsprite');
-		healsprite_above.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_above.destroy()});
-		healsprite_above.play('idle');
+	if(gargoyle.tile_above!=null){
+		if(typeof gargoyle.tile_above.inhabitedBy != "undefined" && gargoyle.tile_above.inhabitedBy != null && gargoyle.tile_above.inhabitedBy.key == 'gargoyle'){
+			gargoyle.tile_above.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+			healsprite_above = game.add.sprite(gargoyle.tile_above.x * 64, gargoyle.tile_above.y * 64, 'healsprite');
+			healsprite_above.animations.add('idle', [0, 1, 2, 3, 4], 9, false).onComplete.add(function(){healsprite_above.destroy()});
+			healsprite_above.play('idle');
+		}
 	}
-	if(typeof gargoyle.tile_below.inhabitedBy != "undefined" && gargoyle.tile_below.inhabitedBy.key == 'gargoyle'){
-		gargoyle.tile_below.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
-		healsprite_below = game.add.sprite(gargoyle.tile_below.x * 64, gargoyle.tile_below.y * 64, 'healsprite');
-		healsprite_below.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_below.destroy()});
-		healsprite_below.play('idle');		
+	if(gargoyle.tile_below!=null){
+		if(typeof gargoyle.tile_below.inhabitedBy != "undefined" && gargoyle.tile_below.inhabitedBy != null && gargoyle.tile_below.inhabitedBy.key == 'gargoyle'){
+			gargoyle.tile_below.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+			healsprite_below = game.add.sprite(gargoyle.tile_below.x * 64, gargoyle.tile_below.y * 64, 'healsprite');
+			healsprite_below.animations.add('idle', [0, 1, 2, 3, 4], 9, false).onComplete.add(function(){healsprite_below.destroy()});
+			healsprite_below.play('idle');		
+		}
 	}
-	if(typeof gargoyle.tile_right.inhabitedBy != "undefined" && gargoyle.tile_right.inhabitedBy.key == 'gargoyle'){
-		gargoyle.tile_right.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
-		healsprite_right = game.add.sprite(gargoyle.tile_right.x * 64, gargoyle.tile_right.y * 64, 'healsprite');
-		healsprite_right.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_right.destroy()});
-		healsprite_right.play('idle');
+	if(gargoyle.tile_right!=null){
+		if(typeof gargoyle.tile_right.inhabitedBy != "undefined" && gargoyle.tile_right.inhabitedBy != null && gargoyle.tile_right.inhabitedBy.key == 'gargoyle'){
+			gargoyle.tile_right.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+			healsprite_right = game.add.sprite(gargoyle.tile_right.x * 64, gargoyle.tile_right.y * 64, 'healsprite');
+			healsprite_right.animations.add('idle', [0, 1, 2, 3, 4], 9, false).onComplete.add(function(){healsprite_right.destroy()});
+			healsprite_right.play('idle');
+		}
 	}
-	if(typeof gargoyle.tile_left.inhabitedBy != "undefined" && gargoyle.tile_left.inhabitedBy.key == 'gargoyle'){
-		gargoyle.tile_left.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
-		healsprite_left = game.add.sprite(gargoyle.tile_left.x * 64, gargoyle.tile_left.y * 64, 'healsprite');
-		healsprite_left.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_left.destroy()});
-		healsprite_left.play('idle');
+	if(gargoyle.tile_left!=null){
+		if(typeof gargoyle.tile_left.inhabitedBy != "undefined" && gargoyle.tile_left.inhabitedBy != null && gargoyle.tile_left.inhabitedBy.key == 'gargoyle'){
+			gargoyle.tile_left.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+			healsprite_left = game.add.sprite(gargoyle.tile_left.x * 64, gargoyle.tile_left.y * 64, 'healsprite');
+			healsprite_left.animations.add('idle', [0, 1, 2, 3, 4], 9, false).onComplete.add(function(){healsprite_left.destroy()});
+			healsprite_left.play('idle');
+		}
 	}
 	enemySpearmen.forEachAlive(function(enemy){
 		enemyMovement(game, enemy);
