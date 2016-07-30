@@ -2,13 +2,14 @@ var selected_gargoyle = 1;
 var still = true;
 var direction;
 var actionTimer = 0;
-var spells = ['defensive_stance', 'opportunistic_stance', 'heavy_stance', 'sacrificial_stance', 'healing_spell', 'teleport_spell', 'illusory_spell'];
+var spells = ['defensive_stance', 'opportunistic_stance', 'heavy_stance', 'sacrificial_stance', 'healing_spell'];//, 'teleport_spell', 'illusory_spell'];
 
 function initGargoyle(game, x, y){
 	gargoyles.create(x + 32, y + 32, 'gargoyle', 0, true);
 	gargoyles.setAll('anchor.x', '0.5');
 	gargoyles.setAll('anchor.y', '0.5');
 	gargoyles.setAll('str', 2, false, false, 0, true);
+	gargoyles.setAll('intel', 5, false, false, 0, true);
 	gargoyles.setAll('defense', 0, false, false, 0, true);
 	gargoyles.setAll('opportunism', false, false, false, 0, true);
 	gargoyles.setAll('health', '50');
@@ -106,17 +107,17 @@ function gargoyleOccupation(game, gargoyle){
 	gargoyle.current_tile.occupied = true;
 	gargoyle.current_tile.inhabitedBy = gargoyle;
 
+	gargoyle.tile_above = map.getTileAbove(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
+	gargoyle.tile_right = map.getTileRight(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
+	gargoyle.tile_left = map.getTileLeft(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
+	gargoyle.tile_below = map.getTileBelow(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
+
 	if(gargoyle.health <= 0){
 		actionTimer = game.time.now + 1200;
 		gargoyle.animations.play('die').onComplete.add(function(){gargoyleDead(game, gargoyle)});
 	}
 
 	if(gargoyle.protecting == true){
-		gargoyle.tile_above = map.getTileAbove(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
-		gargoyle.tile_right = map.getTileRight(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
-		gargoyle.tile_left = map.getTileLeft(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
-		gargoyle.tile_below = map.getTileBelow(0, game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64);
-
 		if(typeof gargoyle.tile_above.inhabitedBy != "undefined" && gargoyle.tile_above.inhabitedBy != null){
 			if(gargoyle.tile_above.inhabitedBy.protectedflag == false){
 				gargoyle.tile_above.inhabitedBy.protectedflag = true;
@@ -468,18 +469,18 @@ function gargoyleSelected(game, gargoyleInteresting){
 }
 
 function generateSpells(game, gargoyle){
-	gargoyle.spell1 = spells[game.rnd.integerInRange(0, 6)];
-	gargoyle.spell2 = spells[game.rnd.integerInRange(0, 6)];
+	gargoyle.spell1 = spells[game.rnd.integerInRange(0, 4)];
+	gargoyle.spell2 = spells[game.rnd.integerInRange(0, 4)];
 	while(gargoyle.spell2 == gargoyle.spell1){
-		gargoyle.spell2 = spells[game.rnd.integerInRange(0, 6)];
+		gargoyle.spell2 = spells[game.rnd.integerInRange(0, 4)];
 	}
-	gargoyle.spell3 = spells[game.rnd.integerInRange(0, 6)];
+	gargoyle.spell3 = spells[game.rnd.integerInRange(0, 4)];
 	while(gargoyle.spell3 == gargoyle.spell1 || gargoyle.spell3 == gargoyle.spell2){
-		gargoyle.spell3 = spells[game.rnd.integerInRange(0, 6)];
+		gargoyle.spell3 = spells[game.rnd.integerInRange(0, 4)];
 	}
-	gargoyle.spell4 = spells[game.rnd.integerInRange(0, 6)];
+	gargoyle.spell4 = spells[game.rnd.integerInRange(0, 4)];
 	while(gargoyle.spell4 == gargoyle.spell1 || gargoyle.spell4 == gargoyle.spell2 || gargoyle.spell4 == gargoyle.spell3){
-		gargoyle.spell4 = spells[game.rnd.integerInRange(0, 6)];
+		gargoyle.spell4 = spells[game.rnd.integerInRange(0, 4)];
 	}
 }
 
@@ -509,6 +510,9 @@ function shootSpell(game, gargoyle, spell){
 			undoAllStances(game, gargoyle);
 			gargoyle.protecting = true;
 			break;
+		case 'healing_spell':
+			healspell(game, gargoyle);
+			break;
 	}
 }
 
@@ -516,6 +520,38 @@ function undoAllStances(game, gargoyle){
 	gargoyle.defense -= 13;
 	gargoyle.opportunism = false;
 	gargoyle.heavy_iterable = -1;
+	gargoyle.protecting = false;
+}
+
+function healspell(game, gargoyle){
+	if(typeof gargoyle.tile_above.inhabitedBy != "undefined" && gargoyle.tile_above.inhabitedBy.key == 'gargoyle'){
+		gargoyle.tile_above.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+		healsprite_above = game.add.sprite(gargoyle.tile_above.x * 64, gargoyle.tile_above.y * 64, 'healsprite');
+		healsprite_above.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_above.destroy()});
+		healsprite_above.play('idle');
+	}
+	if(typeof gargoyle.tile_below.inhabitedBy != "undefined" && gargoyle.tile_below.inhabitedBy.key == 'gargoyle'){
+		gargoyle.tile_below.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+		healsprite_below = game.add.sprite(gargoyle.tile_below.x * 64, gargoyle.tile_below.y * 64, 'healsprite');
+		healsprite_below.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_below.destroy()});
+		healsprite_below.play('idle');		
+	}
+	if(typeof gargoyle.tile_right.inhabitedBy != "undefined" && gargoyle.tile_right.inhabitedBy.key == 'gargoyle'){
+		gargoyle.tile_right.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+		healsprite_right = game.add.sprite(gargoyle.tile_right.x * 64, gargoyle.tile_right.y * 64, 'healsprite');
+		healsprite_right.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_right.destroy()});
+		healsprite_right.play('idle');
+	}
+	if(typeof gargoyle.tile_left.inhabitedBy != "undefined" && gargoyle.tile_left.inhabitedBy.key == 'gargoyle'){
+		gargoyle.tile_left.inhabitedBy.health += 25 + game.rnd.integerInRange(gargoyle.intel, gargoyle.intel*2);
+		healsprite_left = game.add.sprite(gargoyle.tile_left.x * 64, gargoyle.tile_left.y * 64, 'healsprite');
+		healsprite_left.animations.add('idle', [0, 1, 2, 3, 4], 6, false).onComplete.add(function(){healsprite_left.destroy()});
+		healsprite_left.play('idle');
+	}
+	enemySpearmen.forEachAlive(function(enemy){
+		enemyMovement(game, enemy);
+	})
+	gargoyle.souls -= 20;
 }
 
 function moveToNewRoom(game, direction){
