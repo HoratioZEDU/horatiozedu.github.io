@@ -26,9 +26,16 @@ Game.Preload.prototype = {
 		this.load.image('hud_overlay', 'assets/images/hud_overlay.png');
 		this.load.image('hp_icon', 'assets/images/hp_icon.png');
 		this.load.image('soul_icon', 'assets/images/soul_icon.png');
+		this.load.image('defensive_stance', 'assets/images/defensive_stance.png');
+		this.load.image('healing_spell', 'assets/images/healing_spell.png');
+		this.load.image('heavy_stance', 'assets/images/heavy_stance.png');
+		this.load.image('opportunistic_stance', 'assets/images/opportunistic_stance.png');
+		this.load.image('teleport_spell', 'assets/images/teleport_spell.png');
+		this.load.image('sacrificial_stance', 'assets/images/teleport_spell.png');
 		this.load.tilemap('tilemap01', 'assets/maps/tilemap01.csv');
 		this.load.tilemap('tilemap02', 'assets/maps/tilemap02.csv');
 		this.load.tilemap('tilemap03', 'assets/maps/tilemap03.csv');
+		this.load.audio('movement', 'assets/audio/movement.ogg');
 
 	}, 
 
