@@ -23,6 +23,7 @@ Game.tilemap01.prototype = {
 			gargoyle_ui_bg = game.add.group();
 			gargoyle_icons = game.add.group();
 			gargoyle_spells = game.add.group();
+			gargoyle_spell_selectbox = game.add.group();
 			enemySpearmen = game.add.group();
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);

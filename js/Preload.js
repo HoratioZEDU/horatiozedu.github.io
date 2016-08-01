@@ -18,7 +18,7 @@ Game.Preload.prototype = {
 		this.load.spritesheet('2_button', 'assets/spritesheets/2_button.png', 64, 64, 2);
 		this.load.spritesheet('3_button', 'assets/spritesheets/3_button.png', 64, 64, 2);
 		this.load.spritesheet('enemy_spearman', 'assets/spritesheets/enemy_spearman.png', 80, 128, 30);
-		this.load.spritesheet('healsprite', 'assets/spritesheets/healsprite.png', 64, 64, 5);
+		this.load.spritesheet('healsprite', 'assets/spritesheets/healsprite.png', 64, 64, 8);
 		this.load.image('tileset', 'assets/maps/tileset.png');
 		this.load.image('hud_background', 'assets/images/hud_background.png');
 		this.load.image('shadow_right', 'assets/images/shadow1.png');
@@ -31,7 +31,7 @@ Game.Preload.prototype = {
 		this.load.image('heavy_stance', 'assets/images/heavy_stance.png');
 		this.load.image('opportunistic_stance', 'assets/images/opportunistic_stance.png');
 		this.load.image('teleport_spell', 'assets/images/teleport_spell.png');
-		this.load.image('sacrificial_stance', 'assets/images/teleport_spell.png');
+		this.load.image('sacrificial_stance', 'assets/images/sacrificial_stance.png');
 		this.load.tilemap('tilemap01', 'assets/maps/tilemap01.csv');
 		this.load.tilemap('tilemap02', 'assets/maps/tilemap02.csv');
 		this.load.tilemap('tilemap03', 'assets/maps/tilemap03.csv');
