@@ -117,6 +117,16 @@ function initUI(game){
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 }
 
+function spell_information(gargoyle){
+	spell_info = {
+		'defensive_stance':"Stance of Steel\nThis gargoyle assumes a defensive stance,\nreducing all damage taken by 14.",
+		'sacrificial_stance':"Stance of Sacrifice\nThe selected gargoyle takes damage on\nbehalf of its adjacent allies.",
+		'opportunistic_stance':"Stance of Opportunism\nThis gargoyle exploits its enemies' weak spots,\ndealing extra damage to targets not facing it.",
+		'healing_spell':"Healing Spell\nThis gargoyle drains 20 of its own souls\nto repair " + (25+gargoyle.intel).toString() + "-" + (25+gargoyle.intel*2).toString() + " HP to adjacent gargoyles.",
+		'heavy_stance':"Stance of Kindling\nThe gargoyle stands still to kindle a flame,\nmultiplying damage on its next attack."
+	}
+}
+
 function gargoyleOccupation(game, gargoyle){
 	gargoyle.current_tile = map.getTile(game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64, 0);
 	gargoyle.current_tile.occupied = true;
@@ -171,15 +181,8 @@ function gargoyleOccupation(game, gargoyle){
 		gargoyle.animations.play('die').onComplete.add(function(){gargoyleDead(game, gargoyle)});
 	}
 
-	var spell_info = {
-		'defensive_stance':"Stance of Steel\nThis gargoyle assumes a defensive stance,\nreducing all damage taken by 14.",
-		'sacrificial_stance':"Stance of Sacrifice\nThe selected gargoyle takes damage on\nbehalf of its adjacent allies.",
-		'opportunistic_stance':"Stance of Opportunism\nThis gargoyle exploits its enemies' weak spots,\ndealing extra damage to targets not facing it.",
-		'healing_spell':"Healing Spell\nThis gargoyle drains 20 of its own souls\nto repair " + (25+gargoyle.intel).toString() + "-" + (25+gargoyle.intel*2).toString() + " HP to adjacent gargoyles.",
-		'heavy_stance':"Stance of Kindling\nThe gargoyle stands still to kindle a flame,\nmultiplying damage on its next attack."
-	}
-
 	gargoyle_spells.forEachAlive(function(spell_icon){
+		spell_information(gargoyles.getChildAt(game.math.snapToFloor(gargoyle_spells.getIndex(spell_icon) / 4, 1)));		// Gargoyle specific now
 		if(spell_icon.input.pointerOver() && spell_icon.help_text.text == ""){
 			spell_icon.help_text = game.add.text(884, 20, spell_info[spell_icon.key], {fontSize: '12px'});
 		}
