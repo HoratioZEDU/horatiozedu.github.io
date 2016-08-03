@@ -14,6 +14,21 @@ Game.tilemap02.prototype = {
 		map.addTilesetImage('tileset');
 		layer = map.createLayer(0);
 
+		// Initialization of shadows
+		game.add.sprite(708, 64, 'shadow_right');
+		game.add.sprite(708, 128, 'shadow_right');
+		game.add.sprite(708, 192, 'shadow_right');
+		game.add.sprite(708, 256, 'shadow_right');
+		game.add.sprite(708, 5*64, 'shadow_right');
+		game.add.sprite(708, 6*64, 'shadow_right');
+		game.add.sprite(708, 7*64, 'shadow_right');
+		game.add.sprite(708, 8*64, 'shadow_right');
+		game.add.sprite(60, 64, 'shadow_left');
+		game.add.sprite(60, 128, 'shadow_left');
+		game.add.sprite(60, 192, 'shadow_left');
+		game.add.sprite(60, 256, 'shadow_left');
+		game.add.sprite(60, 5*64, 'shadow_left');
+
 		// Initialization of gargoyles
 
 		if(this.direction == 'right') {
@@ -34,25 +49,18 @@ Game.tilemap02.prototype = {
 			})
 		}
 
+		game.world.bringToTop(dropped_souls);
+
 		game.world.bringToTop(gargoyles);
 
+		// Initialization of enemies
+
+		initEnemySpearman(game, 7*64, 3*64, Math.PI);
+		initEnemySpearman(game, 10*64, 5*64, Math.PI);
+
+		game.world.bringToTop(enemySpearmen);
 		// Initialization of controls
 		initControls(game);
-
-		// Initialization of shadows
-		game.add.sprite(708, 64, 'shadow_right');
-		game.add.sprite(708, 128, 'shadow_right');
-		game.add.sprite(708, 192, 'shadow_right');
-		game.add.sprite(708, 256, 'shadow_right');
-		game.add.sprite(708, 5*64, 'shadow_right');
-		game.add.sprite(708, 6*64, 'shadow_right');
-		game.add.sprite(708, 7*64, 'shadow_right');
-		game.add.sprite(708, 8*64, 'shadow_right');
-		game.add.sprite(60, 64, 'shadow_left');
-		game.add.sprite(60, 128, 'shadow_left');
-		game.add.sprite(60, 192, 'shadow_left');
-		game.add.sprite(60, 256, 'shadow_left');
-		game.add.sprite(60, 5*64, 'shadow_left');
 
 		// Initialization of the User Interface
 		//initUI(game);

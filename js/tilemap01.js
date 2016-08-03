@@ -14,6 +14,21 @@ Game.tilemap01.prototype = {
 		map.addTilesetImage('tileset');
 		layer = map.createLayer(0);
 
+		// Initialization of shadows
+		game.add.sprite(708, 64, 'shadow_right');
+		game.add.sprite(708, 128, 'shadow_right');
+		game.add.sprite(708, 192, 'shadow_right');
+		game.add.sprite(708, 256, 'shadow_right');
+		game.add.sprite(708, 5*64, 'shadow_right');
+		game.add.sprite(60, 64, 'shadow_left');
+		game.add.sprite(60, 128, 'shadow_left');
+		game.add.sprite(60, 192, 'shadow_left');
+		game.add.sprite(60, 256, 'shadow_left');
+		game.add.sprite(60, 5*64, 'shadow_left');
+		game.add.sprite(60, 6*64, 'shadow_left');
+		game.add.sprite(60, 7*64, 'shadow_left');
+		game.add.sprite(60, 8*64, 'shadow_left');
+
 		// Initialization of the gargoyles
 		if(this.direction=='new'){
 			gargoyles = game.add.group();
@@ -24,6 +39,7 @@ Game.tilemap01.prototype = {
 			gargoyle_icons = game.add.group();
 			gargoyle_spells = game.add.group();
 			gargoyle_spell_selectbox = game.add.group();
+			dropped_souls = game.add.group();
 			enemySpearmen = game.add.group();
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
@@ -49,6 +65,8 @@ Game.tilemap01.prototype = {
 			})
 		}
 
+		game.world.bringToTop(dropped_souls);
+
 		game.world.bringToTop(gargoyles);
 
 		// Initialization of enemies
@@ -59,23 +77,7 @@ Game.tilemap01.prototype = {
 		game.world.bringToTop(enemySpearmen);
 
 		// Initialization of controls
-		initControls(game);
-
-		// Initialization of shadows
-		game.add.sprite(708, 64, 'shadow_right');
-		game.add.sprite(708, 128, 'shadow_right');
-		game.add.sprite(708, 192, 'shadow_right');
-		game.add.sprite(708, 256, 'shadow_right');
-		game.add.sprite(708, 5*64, 'shadow_right');
-		game.add.sprite(60, 64, 'shadow_left');
-		game.add.sprite(60, 128, 'shadow_left');
-		game.add.sprite(60, 192, 'shadow_left');
-		game.add.sprite(60, 256, 'shadow_left');
-		game.add.sprite(60, 5*64, 'shadow_left');
-		game.add.sprite(60, 6*64, 'shadow_left');
-		game.add.sprite(60, 7*64, 'shadow_left');
-		game.add.sprite(60, 8*64, 'shadow_left');
-		
+		initControls(game);		
 	},
 
 	update: function(game){
