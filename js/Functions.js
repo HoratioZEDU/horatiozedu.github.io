@@ -609,9 +609,17 @@ function shootSpell(game, gargoyle, spell){
 	console.log(spell);
 	switch(spell){
 		case 'defensive_stance':
-			undoAllStances(game, gargoyle);
-			gargoyle.defense = 13;
-			game.add.audio('defensive_stance').play();
+			if(game.time.now > actionTimer){
+				actionTimer = game.time.now + 700;
+				undoAllStances(game, gargoyle);
+				gargoyle.defense = 13;
+				defensive_sprite = game.add.sprite(gargoyle.x, gargoyle.y, 'defsprite');
+				defensive_sprite.anchor.x = 0.5;
+				defensive_sprite.anchor.y = 0.5;
+				defensive_sprite.animations.add('idle', [0, 1, 2, 3, 4], 7, false).onComplete.add(function(){defensive_sprite.destroy()});
+				defensive_sprite.play('idle');
+				game.time.events.add(400, function(){game.add.audio('defensive_stance').play()}, this);
+			}
 			break;
 		case 'opportunistic_stance':
 			undoAllStances(game, gargoyle);
