@@ -29,7 +29,7 @@ Game.tilemap01.prototype = {
 		game.add.sprite(60, 7*64, 'shadow_left');
 		game.add.sprite(60, 8*64, 'shadow_left');
 
-		// Initialization of the gargoyles
+		// Initialization of the gargoyles+first time setup
 		if(this.direction=='new'){
 			gargoyles = game.add.group();
 			gargoyle_buttons = game.add.group();
@@ -38,7 +38,7 @@ Game.tilemap01.prototype = {
 			gargoyle_ui_bg = game.add.group();
 			gargoyle_icons = game.add.group();
 			gargoyle_spells = game.add.group();
-			gargoyle_spell_selectbox = game.add.group();
+			gargoyle_select_marker = game.add.group();
 			dropped_souls = game.add.group();
 			enemySpearmen = game.add.group();
 			initGargoyle(game, 5*64, 512);

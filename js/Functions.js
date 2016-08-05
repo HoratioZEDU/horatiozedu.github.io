@@ -76,10 +76,10 @@ function initControls(game){
 	controls.first.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(0))});
 	controls.second.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(1))});
 	controls.third.onDown.add(function(){gargoyleSelected(game, gargoyles.getChildAt(2))});
-	controls.spell1.onDown.add(function(){spellSelected(game, gargoyle, gargoyle.spell1)});
-	controls.spell2.onDown.add(function(){spellSelected(game, gargoyle, gargoyle.spell2)});
-	controls.spell3.onDown.add(function(){spellSelected(game, gargoyle, gargoyle.spell3)});
-	controls.spell4.onDown.add(function(){spellSelected(game, gargoyle, gargoyle.spell4)});
+	controls.spell1.onDown.add(function(){moveMarker(game, gargoyle_spells.getChildAt(0+4*(gargoyles.getIndex(gargoyle))), gargoyle)});
+	controls.spell2.onDown.add(function(){moveMarker(game, gargoyle_spells.getChildAt(1+4*(gargoyles.getIndex(gargoyle))), gargoyle)});
+	controls.spell3.onDown.add(function(){moveMarker(game, gargoyle_spells.getChildAt(2+4*(gargoyles.getIndex(gargoyle))), gargoyle)});
+	controls.spell4.onDown.add(function(){moveMarker(game, gargoyle_spells.getChildAt(3+4*(gargoyles.getIndex(gargoyle))), gargoyle)});
 	controls.firespell.onDown.add(function(){shootSpell(game, gargoyle, gargoyle.activeSpell)});
 	controls.kill.onDown.add(function(){gargoyle.health -= 5})  								// THIS IS ALSO FOR DEBUGGING
 
@@ -103,17 +103,18 @@ function initUI(game){
 		gargoyle_ui_bg.addChild(game.add.sprite(880, 83 + 85*(gargoyle_id), 'hud_overlay'));
 		generateSpells(game, gargoyle_ofinterest);
 		gargoyle_spells.addChild(game.add.button(986, 114 + 85*(gargoyle_id), gargoyle_ofinterest.spell1, function(){
-			spellSelected(game, gargoyle, gargoyle_ofinterest.spell1);
+			// spellSelected(game, gargoyle, 1);
 		}));
 		gargoyle_spells.addChild(game.add.button(1023, 114 + 85*(gargoyle_id), gargoyle_ofinterest.spell2, function(){
-			spellSelected(game, gargoyle, gargoyle_ofinterest.spell2);
+			// spellSelected(game, gargoyle, 2);
 		}));
 		gargoyle_spells.addChild(game.add.button(1060, 114 + 85*(gargoyle_id), gargoyle_ofinterest.spell3, function(){
-			spellSelected(game, gargoyle, gargoyle_ofinterest.spell3);
+			// spellSelected(game, gargoyle, 3);
 		}));
 		gargoyle_spells.addChild(game.add.button(1099, 114 + 85*(gargoyle_id), gargoyle_ofinterest.spell4, function(){
-			spellSelected(game, gargoyle, gargoyle_ofinterest.spell4);
+			// spellSelected(game, gargoyle, 4);
 		}));
+		gargoyle_ofinterest.select_marker = game.add.sprite(986, 114 + 85*(gargoyle_id), 'select_marker');
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 }
@@ -192,6 +193,9 @@ function gargoyleOccupation(game, gargoyle){
 				spell_icon.help_text.text = "";
 			}
 		}
+		if(spell_icon.input.pointerDown() && spell_icon.input.pointerOver()){
+			moveMarker(game, spell_icon, gargoyles.getChildAt(game.math.snapToFloor(gargoyle_spells.getIndex(spell_icon) / 4, 1)));
+		}
  	});
 
 	dropped_souls.forEachAlive(function(soul){
@@ -207,6 +211,15 @@ function gargoyleOccupation(game, gargoyle){
 	}
 
  	gargoyles.getChildAt(0).intel += 1;
+}
+
+function moveMarker(game, spell_destination, gargoyle_ofinterest){
+	gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
+	marker = gargoyle_ofinterest.select_marker;
+	marker.x = spell_destination.x;
+	console.log(spell_destination);
+	spell_selected = (gargoyle_spells.getIndex(spell_destination) % 4) + 1;
+	spellSelected(game, gargoyle_ofinterest, spell_selected);
 }
 
 function enemyOccupation(game, enemy){
@@ -571,11 +584,25 @@ function generateSpells(game, gargoyle){
 	}
 }
 
-function spellSelected(game, gargoyle, spellCool){
-	gargoyle.activeSpell = spellCool;
-	console.log(gargoyle.activeSpell);
+function spellSelected(game, gargoyle_ofinterest, spellCool){
+	switch(spellCool){
+		case 1:
+			gargoyle_ofinterest.activeSpell = gargoyle_ofinterest.spell1;
+			break;
+		case 2:
+			gargoyle_ofinterest.activeSpell = gargoyle_ofinterest.spell2;
+			break;
+		case 3:
+			gargoyle_ofinterest.activeSpell = gargoyle_ofinterest.spell3;
+			break;
+		case 4:
+			gargoyle_ofinterest.activeSpell = gargoyle_ofinterest.spell4;
+			break;
+	}
+	console.log(gargoyle.activeSpell); 
 
 	// TODO: add UI interaction here
+	// gargoyle_ofinterest.select_marker.x = gargoyle_spells.getChildAt((spellCool - 1) + 4*gargoyles.getIndex(gargoyle)).x;   	//working, find a better solution
 }
 
 function shootSpell(game, gargoyle, spell){
