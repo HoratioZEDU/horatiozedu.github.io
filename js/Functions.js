@@ -13,6 +13,7 @@ function initGargoyle(game, x, y){
 	gargoyles.setAll('str', 2, false, false, 0, true);
 	gargoyles.setAll('intel', 5, false, false, 0, true);
 	gargoyles.setAll('defense', 0, false, false, 0, true);
+	gargoyles.setAll('base_defense', 0, false, false, 0, true);
 	gargoyles.setAll('opportunism', false, false, false, 0, true);
 	gargoyles.setAll('maxhp', '50', false, false, 0, true);
 	gargoyles.setAll('health', '50');
@@ -115,6 +116,7 @@ function initUI(game){
 			// spellSelected(game, gargoyle, 4);
 		}));
 		gargoyle_ofinterest.select_marker = game.add.sprite(986, 114 + 85*(gargoyle_id), 'select_marker');
+		gargoyle_select_marker.add(gargoyle_ofinterest.select_marker);
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 }
@@ -241,6 +243,7 @@ function gargoyleDead(game, gargoyle){
 	gargoyle.destroy();
 	gargoyle.current_tile.occupied = false;
 	gargoyle.current_tile.inhabitedBy = null;
+	gargoyle_select_marker.removeAll(true);
 	gargoyle_buttons.removeAll(true);
 	gargoyle_hp_bars.removeAll(true);
 	gargoyle_soul_bars.removeAll(true);
@@ -259,7 +262,6 @@ function gargoyleDead(game, gargoyle){
 		gargoyle_soul_bars.addChild(game.add.sprite(983, 101 + 85*(gargoyle_id), gargoyle_ofinterest.soul_bar));
 		gargoyle_icons.addChild(game.add.sprite(960, 100 + 85*(gargoyle_id), 'soul_icon'));
 		gargoyle_ui_bg.addChild(game.add.sprite(880, 83 + 85*(gargoyle_id), 'hud_overlay'));
-		generateSpells(game, gargoyle_ofinterest);
 		gargoyle_spells.addChild(game.add.button(986, 114 + 85*(gargoyle_id), gargoyle_ofinterest.spell1, function(){
 			spellSelected(game, gargoyle, gargoyle_ofinterest.spell1);
 		}));
@@ -272,6 +274,20 @@ function gargoyleDead(game, gargoyle){
 		gargoyle_spells.addChild(game.add.button(1099, 114 + 85*(gargoyle_id), gargoyle_ofinterest.spell4, function(){
 			spellSelected(game, gargoyle, gargoyle_ofinterest.spell4);
 		}));
+		switch(gargoyle_ofinterest.activeSpell){
+			case gargoyle_ofinterest.spell2:
+				gargoyle_ofinterest.select_marker = game.add.sprite(1023, 114 + 85*(gargoyle_id), 'select_marker');
+				break;
+			case gargoyle_ofinterest.spell3:
+				gargoyle_ofinterest.select_marker = game.add.sprite(1060, 114 + 85*(gargoyle_id), 'select_marker');
+				break;
+			case gargoyle_ofinterest.spell4:
+				gargoyle_ofinterest.select_marker = game.add.sprite(1099, 114 + 85*(gargoyle_id), 'select_marker');
+				break;
+			default:
+				gargoyle_ofinterest.select_marker = game.add.sprite(986, 114 + 85*(gargoyle_id), 'select_marker');
+		}
+		gargoyle_select_marker.add(gargoyle_ofinterest.select_marker);
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 	if(gargoyles.children.length == 0){
@@ -640,7 +656,7 @@ function shootSpell(game, gargoyle, spell){
 }
 
 function undoAllStances(game, gargoyle){
-	gargoyle.defense -= 13;
+	gargoyle.defense = gargoyle.base_defense;
 	gargoyle.opportunism = false;
 	gargoyle.heavy_iterable = -1;
 	gargoyle.protecting = false;
