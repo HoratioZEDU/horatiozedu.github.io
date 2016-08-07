@@ -77,7 +77,7 @@ Game.tilemap01.prototype = {
 		game.world.bringToTop(enemySpearmen);
 
 		// Initialization of controls
-		initControls(game);		
+		initControls(game);	
 	},
 
 	update: function(game){

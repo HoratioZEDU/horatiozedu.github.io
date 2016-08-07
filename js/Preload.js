@@ -20,6 +20,7 @@ Game.Preload.prototype = {
 		this.load.spritesheet('enemy_spearman', 'assets/spritesheets/enemy_spearman.png', 80, 128, 30);
 		this.load.spritesheet('healsprite', 'assets/spritesheets/healsprite.png', 64, 64, 8);
 		this.load.spritesheet('defsprite', 'assets/spritesheets/defsprite.png', 64, 64, 5);
+		this.load.spritesheet('kindlesprite', 'assets/spritesheets/kindlesprite.png', 128, 128, 10);
 		this.load.image('tileset', 'assets/maps/tileset.png');
 		this.load.image('hud_background', 'assets/images/hud_background.png');
 		this.load.image('shadow_right', 'assets/images/shadow1.png');

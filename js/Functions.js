@@ -212,7 +212,18 @@ function gargoyleOccupation(game, gargoyle){
 		gargoyle.health = gargoyle.maxhp;
 	}
 
- 	gargoyles.getChildAt(0).intel += 1;
+	if(typeof gargoyle.kindlesprite != "undefined"){
+		if(gargoyle.kindlesprite.visible == true){
+			gargoyle.kindlesprite.x = gargoyle.x;
+			gargoyle.kindlesprite.y = gargoyle.y - 15;
+			gargoyle.kindlesprite.frame = (gargoyle.heavy_iterable+1)*2
+			console.log(gargoyle.kindlesprite.frame);
+			if(gargoyle.kindlesprite.animations.frame == 6){
+				gargoyle.kindlesprite.animations.play('idle');
+				console.log("aaa");
+			}
+		}
+	}
 }
 
 function moveMarker(game, spell_destination, gargoyle_ofinterest){
@@ -239,10 +250,10 @@ function enemyOccupation(game, enemy){
 	}
 }
 
-function gargoyleDead(game, gargoyle){
-	gargoyle.destroy();
-	gargoyle.current_tile.occupied = false;
-	gargoyle.current_tile.inhabitedBy = null;
+function gargoyleDead(game, gargoyleGood){
+	gargoyleGood.destroy();
+	gargoyleGood.current_tile.occupied = false;
+	gargoyleGood.current_tile.inhabitedBy = null;
 	gargoyle_select_marker.removeAll(true);
 	gargoyle_buttons.removeAll(true);
 	gargoyle_hp_bars.removeAll(true);
@@ -288,10 +299,16 @@ function gargoyleDead(game, gargoyle){
 				gargoyle_ofinterest.select_marker = game.add.sprite(986, 114 + 85*(gargoyle_id), 'select_marker');
 		}
 		gargoyle_select_marker.add(gargoyle_ofinterest.select_marker);
+		//gargoyleSelected(game, gargoyle_ofinterest);
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 	if(gargoyles.children.length == 0){
 		game.state.start('MainMenu');
+	}
+	if(gargoyle == gargoyleGood && gargoyles.children.length != 0){
+		gargoyleSelected(game, gargoyles.getChildAt(0));
+	} else if(gargoyles.children.length != 0) {
+		gargoyleSelected(game, gargoyle);
 	}
 }
 
@@ -316,9 +333,9 @@ function enemyMovement(game, enemy){
 	//enemy.current_tile.occupied = false; 
 	//enemy.current_tile.inhabitedBy = null;
 
-	gargoyles.forEachAlive(function(gargoyle){
-		if(gargoyle.heavy_iterable >= 0 && gargoyle.heavy_iterable < 5){gargoyle.heavy_iterable+=1/gargoyles.children.length; console.log(gargoyle.heavy_iterable)}
-	})
+	// gargoyles.forEachAlive(function(gargoyle){
+	// 	if(gargoyle.heavy_iterable >= 0 && gargoyle.heavy_iterable < 5){gargoyle.heavy_iterable+=1/gargoyles.children.length; console.log(gargoyle.heavy_iterable)}
+	// })
 
 	if(closest_gargoyle == enemy_tile_above.inhabitedBy){
 		enemy.damage = game.rnd.integerInRange(enemy.damage, enemy.damage + 5);		// Punch up
@@ -409,6 +426,12 @@ function enemyMovement(game, enemy){
 
 function movement_up(game, gargoyle){
 	gargoyle.current_tile.occupied = false;
+	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		if(gargoyle_ofinterest.heavy_iterable >= 0 && gargoyle_ofinterest.heavy_iterable < 3){
+			gargoyle_ofinterest.heavy_iterable+=1; 
+			console.log(gargoyle_ofinterest.heavy_iterable)
+		}
+	});
 	if(gargoyle.tile_above==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'up')}
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}													// Making sure gargoyle.gargoyle_tween is defined																			// Checking if you're sauntering off into the inky blackness
 	if(gargoyle.tile_above!=null){
@@ -451,6 +474,12 @@ function movement_up(game, gargoyle){
 
 function movement_down(game, gargoyle){
 	gargoyle.current_tile.occupied = false;
+	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		if(gargoyle_ofinterest.heavy_iterable >= 0 && gargoyle_ofinterest.heavy_iterable < 3){
+			gargoyle_ofinterest.heavy_iterable+=1; 
+			console.log(gargoyle_ofinterest.heavy_iterable
+		)}
+	});
 	if(gargoyle.tile_below==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'down')}
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}
 	if(gargoyle.tile_below!= null){
@@ -491,6 +520,12 @@ function movement_down(game, gargoyle){
 
 function movement_right(game, gargoyle){
 	gargoyle.current_tile.occupied = false;
+	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		if(gargoyle_ofinterest.heavy_iterable >= 0 && gargoyle_ofinterest.heavy_iterable < 3){
+			gargoyle_ofinterest.heavy_iterable+=1; 
+			console.log(gargoyle_ofinterest.heavy_iterable
+		)}
+	});
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}
 	if(gargoyle.tile_right==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'right')}
 	if(gargoyle.tile_right!=null){
@@ -532,6 +567,12 @@ function movement_right(game, gargoyle){
 
 function movement_left(game, gargoyle){
 	gargoyle.current_tile.occupied = false; 
+	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		if(gargoyle_ofinterest.heavy_iterable >= 0 && gargoyle_ofinterest.heavy_iterable < 3){
+			gargoyle_ofinterest.heavy_iterable+=1; 
+			console.log(gargoyle_ofinterest.heavy_iterable
+		)}
+	});
 	if(gargoyle.tile_left==null && gargoyle.gargoyle_tween.isRunning == false){moveToNewRoom(game, 'left')}
 	if(typeof gargoyle.gargoyle_tween==="undefined"){gargoyle.gargoyle_tween = game.add.tween(gargoyle);}
 	if(gargoyle.tile_left!=null){
@@ -644,6 +685,11 @@ function shootSpell(game, gargoyle, spell){
 		case 'heavy_stance':
 			undoAllStances(game, gargoyle);
 			gargoyle.heavy_iterable = 0;
+			gargoyle.kindlesprite = game.add.sprite(gargoyle.x, gargoyle.y, 'kindlesprite');
+			gargoyle.kindlesprite.animations.add('idle', [8, 9], 3, true);
+			gargoyle.kindlesprite.anchor.x = 0.5;
+			gargoyle.kindlesprite.anchor.y = 0.5;
+			gargoyle.kindlesprite.frame = 1;
 			break;
 		case 'sacrificial_stance':
 			undoAllStances(game, gargoyle);
