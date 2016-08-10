@@ -12,6 +12,8 @@ Game.Preload.prototype = {
 		this.load.setPreloadSprite(this.preloadBar);
 
 		// Loading assets
+		this.load.script('filterX', 'js/BlurX.js');
+		this.load.script('filterY', 'js/BlurY.js');
 		this.load.spritesheet('start_button', 'assets/spritesheets/start_button.png', 286, 106);
 		this.load.spritesheet('gargoyle', 'assets/spritesheets/gargoyle.png', 78, 78, 28);
 		this.load.spritesheet('1_button', 'assets/spritesheets/1_button.png', 64, 64, 2);
@@ -28,6 +30,7 @@ Game.Preload.prototype = {
 		this.load.image('hud_overlay', 'assets/images/hud_overlay.png');
 		this.load.image('hp_icon', 'assets/images/hp_icon.png');
 		this.load.image('soul_icon', 'assets/images/soul_icon.png');
+		this.load.image('soulpickup', 'assets/images/soul_icon.png');
 		this.load.image('defensive_stance', 'assets/images/defensive_stance.png');
 		this.load.image('healing_spell', 'assets/images/healing_spell.png');
 		this.load.image('heavy_stance', 'assets/images/heavy_stance.png');

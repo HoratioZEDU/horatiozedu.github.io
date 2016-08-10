@@ -19,7 +19,7 @@
 
 window.onload = function(){
 
-	var game = new Phaser.Game(1192,640,Phaser.CANVAS,'');
+	var game = new Phaser.Game(1192,640,Phaser.WebGL,'');
 
 	game.state.add('Boot',Game.Boot);
 	game.state.add('Preload',Game.Preload);

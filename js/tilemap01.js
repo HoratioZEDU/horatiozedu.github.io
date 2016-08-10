@@ -78,6 +78,9 @@ Game.tilemap01.prototype = {
 
 		// Initialization of controls
 		initControls(game);	
+
+		// var blurX = game.add.filter('BlurX');
+		// var blurY = game.add.filter('BlurY');
 	},
 
 	update: function(game){
