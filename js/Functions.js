@@ -15,8 +15,10 @@ function initGargoyle(game, x, y){
 	gargoyles.setAll('defense', 0, false, false, 0, true);
 	gargoyles.setAll('base_defense', 0, false, false, 0, true);
 	gargoyles.setAll('opportunism', false, false, false, 0, true);
-	gargoyles.setAll('maxhp', '50', false, false, 0, true);
-	gargoyles.setAll('health', '50');
+	gargoyles.setAll('maxhp', 50, false, false, 0, true);
+	gargoyles.setAll('souls', 100, false, false, 0, true);
+	gargoyles.setAll('max_souls', 100, false, false, 0, true);
+	gargoyles.setAll('health', 50);
 	gargoyles.setAll('protectedflag', false, false, false, 0, true);
 	gargoyles.callAll('animations.add', 'animations', 'die', [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], 10, false);
 	gargoyles.callAll('animations.add', 'animations', 'punch', [1, 2, 3, 0], 5, false);
@@ -90,7 +92,6 @@ function initUI(game){
 	game.add.sprite(852, 0, 'hud_background').sendToBack();
 
 	gargoyles.forEachAlive(function(gargoyle_ofinterest){
-		gargoyle_ofinterest.souls = 100;
 		gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
 		gargoyle_buttons.addChild(game.add.button(884, 85 + 85*(gargoyle_id), (gargoyle_id+1).toString() + '_button', function(){
 			gargoyleSelected(game, gargoyle_ofinterest);
@@ -153,6 +154,10 @@ function gargoyleOccupation(game, gargoyle){
 		gargoyle.animations.play('die').onComplete.add(function(){gargoyleDead(game, gargoyle)});
 	}
 
+	if(gargoyle.souls >= gargoyle.max_souls){
+		gargoyle.souls = gargoyle.max_souls;
+	}
+
 	if(gargoyle.protecting == true){
 		if(gargoyle.tile_above != null && typeof gargoyle.tile_above.inhabitedBy != "undefined" && gargoyle.tile_above.inhabitedBy != null){
 			if(gargoyle.tile_above.inhabitedBy.protectedflag == false){
@@ -186,7 +191,7 @@ function gargoyleOccupation(game, gargoyle){
 	
 	gargoyle.hp_bar.clear();
 	gargoyle.hp_bar.beginFill(0xcc0000);
-	gargoyle.hp_bar.drawRect(0, 0, gargoyle.health*3, 8);
+	gargoyle.hp_bar.drawRect(0, 0, (gargoyle.health/gargoyle.maxhp)*150, 8);
 	gargoyle.hp_bar.endFill();
 	
 	gargoyle.soul_bar.clear();
@@ -217,10 +222,31 @@ function gargoyleOccupation(game, gargoyle){
 	dropped_souls.forEachAlive(function(soul){
 		if(gargoyle.current_tile == map.getTile(game.math.snapToFloor(soul.x, 64) / 64, game.math.snapToFloor(soul.y, 64) / 64, 0)){   			// Picking up souls
 			soul.destroy();
-			gargoyle.souls += game.rnd.integerInRange(13, 18);
+			gargoyle.souls += soul.soul_value;
 			game.add.audio('soulpickup').play();
 		}
 	});
+
+	ectoplasm.forEachAlive(function(soul){																										// Picking up ectoplasm
+		if(gargoyle.current_tile == map.getTile(game.math.snapToFloor(soul.x, 64) / 64, game.math.snapToFloor(soul.y, 64) / 64, 0)){
+			soul.destroy();
+			gargoyle.souls += soul.soul_value;
+			game.add.audio('soulpickup').play();
+			switch(game.rnd.integerInRange(0, 2)){
+				case 0:
+					gargoyle.intel += 2;
+					break;
+				case 1:
+					gargoyle.str += 3;
+					break;
+				case 2: 
+					gargoyle.maxhp += 10;
+					gargoyle.health += 10;
+					console.log(gargoyle.health);
+					break;
+			}
+		}
+	})
 
 	if(gargoyle.health >= gargoyle.maxhp){
 		gargoyle.health = gargoyle.maxhp;
@@ -244,7 +270,6 @@ function moveMarker(game, spell_destination, gargoyle_ofinterest){
 	gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
 	marker = gargoyle_ofinterest.select_marker;
 	marker.x = spell_destination.x;
-	console.log(spell_destination);
 	spell_selected = (gargoyle_spells.getIndex(spell_destination) % 4) + 1;
 	spellSelected(game, gargoyle_ofinterest, spell_selected);
 }
@@ -337,7 +362,13 @@ function gargoyleDead(game, gargoyleGood){
 function enemyDead(game, enemy){
 	switch(enemy.key){
 		case 'enemy_spearman':
-			enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 8, enemy.y - 8, 'soulpickup'));
+			if(game.rnd.integerInRange(0, 2) == 0){
+				enemy.current_tile.inhabitedBy = ectoplasm.addChild(game.add.sprite(enemy.x, enemy.y - 8, 'ectoplasmpickup'));
+				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(8, 12);
+			} else {
+				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 8, enemy.y - 8, 'soulpickup'));
+				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(13, 17);
+			}
 	}
 	enemy.destroy();
 	enemy.current_tile.occupied = false;
@@ -807,6 +838,8 @@ function moveToNewRoom(game, direction){
 	})
 
 	enemySpearmen.removeAll(true);
+
+	ectoplasm.removeAll(true);
 
 	dropped_souls.removeAll(true);
 

@@ -40,6 +40,7 @@ Game.tilemap01.prototype = {
 			gargoyle_spells = game.add.group();
 			gargoyle_select_marker = game.add.group();
 			dropped_souls = game.add.group();
+			ectoplasm = game.add.group();
 			enemySpearmen = game.add.group();
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
@@ -78,9 +79,6 @@ Game.tilemap01.prototype = {
 
 		// Initialization of controls
 		initControls(game);	
-
-		// var blurX = game.add.filter('BlurX');
-		// var blurY = game.add.filter('BlurY');
 	},
 
 	update: function(game){

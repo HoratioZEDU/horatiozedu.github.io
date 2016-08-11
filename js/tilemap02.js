@@ -50,7 +50,7 @@ Game.tilemap02.prototype = {
 		}
 
 		game.world.bringToTop(dropped_souls);
-
+		game.world.bringToTop(ectoplasm);
 		game.world.bringToTop(gargoyles);
 
 		// Initialization of enemies

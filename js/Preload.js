@@ -31,6 +31,7 @@ Game.Preload.prototype = {
 		this.load.image('hp_icon', 'assets/images/hp_icon.png');
 		this.load.image('soul_icon', 'assets/images/soul_icon.png');
 		this.load.image('soulpickup', 'assets/images/soul_icon.png');
+		this.load.image('ectoplasmpickup', 'assets/images/hp_icon.png');
 		this.load.image('defensive_stance', 'assets/images/defensive_stance.png');
 		this.load.image('healing_spell', 'assets/images/healing_spell.png');
 		this.load.image('heavy_stance', 'assets/images/heavy_stance.png');
