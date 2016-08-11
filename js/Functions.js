@@ -130,11 +130,11 @@ function initUI(game){
 
 function spell_information(gargoyle){
 	spell_info = {
-		'defensive_stance':"Stance of Steel\nThis gargoyle assumes a defensive stance,\nreducing all damage taken by 14.",
+		'defensive_stance':"Stance of Steel\nThis gargoyle assumes a defensive\nstance, reducing all damage taken by 14.",
 		'sacrificial_stance':"Stance of Sacrifice\nThe selected gargoyle takes damage on\nbehalf of its adjacent allies.",
-		'opportunistic_stance':"Stance of Opportunism\nThis gargoyle exploits its enemies' weak spots,\ndealing extra damage to targets not facing it.",
+		'opportunistic_stance':"Stance of Opportunism\nThis gargoyle exploits its enemies' weak\nspots, dealing extra damage to targets\nfacing away from it.",
 		'healing_spell':"Healing Spell\nThis gargoyle drains 20 of its own souls\nto repair " + (25+gargoyle.intel).toString() + "-" + (25+gargoyle.intel*2).toString() + " HP to adjacent gargoyles.",
-		'heavy_stance':"Stance of Kindling\nThe gargoyle stands still to kindle a flame,\nmultiplying damage on its next attack."
+		'heavy_stance':"Stance of Kindling\nThe gargoyle stands still to carefully\nkindle a flame, multiplying damage dealt\non its next attack."
 	}
 }
 
@@ -205,17 +205,24 @@ function gargoyleOccupation(game, gargoyle){
 	}
 
 	gargoyle_spells.forEachAlive(function(spell_icon){
-		spell_information(gargoyles.getChildAt(game.math.snapToFloor(gargoyle_spells.getIndex(spell_icon) / 4, 1)));		// Gargoyle specific now
-		if(spell_icon.input.pointerOver() && spell_icon.help_text.text == ""){
-			spell_icon.help_text = game.add.text(884, 20, spell_info[spell_icon.key], {fontSize: '12px'});
+		gargoyle_ofinterest = gargoyles.getChildAt(game.math.snapToFloor(gargoyle_spells.getIndex(spell_icon) / 4, 1));
+		spell_information(gargoyle_ofinterest);		// Gargoyle specific now
+		if(spell_icon.input.pointerOver() && spell_icon.help_text.text == "" && gargoyle_ofinterest.frame == 0){
+			spell_icon.help_background = game.add.sprite(880, 10, 'infotext_background');
+			spell_icon.help_text = game.add.text(895, 20, spell_info[spell_icon.key], {fontSize: '12px', fill:'#999999'});
 		}
 		if(spell_icon.input.pointerOut()){
 			if(spell_icon.help_text.text != ""){
 				spell_icon.help_text.text = "";
-			}
+				spell_icon.help_background.visible = false;
+			} 
 		}
 		if(spell_icon.input.pointerDown() && spell_icon.input.pointerOver()){
 			moveMarker(game, spell_icon, gargoyles.getChildAt(game.math.snapToFloor(gargoyle_spells.getIndex(spell_icon) / 4, 1)));
+		}
+		if(gargoyle_ofinterest.frame != 0 && spell_icon.help_text.text != ""){
+			spell_icon.help_text.text = "";
+			spell_icon.help_background.visible = false;
 		}
  	});
 
@@ -232,19 +239,23 @@ function gargoyleOccupation(game, gargoyle){
 			soul.destroy();
 			gargoyle.souls += soul.soul_value;
 			game.add.audio('soulpickup').play();
-			switch(game.rnd.integerInRange(0, 2)){
-				case 0:
+			switch(soul.stat_type){
+				case 2:
 					gargoyle.intel += 2;
+					ectoplasm_text = game.add.text(300, 400, "+2 Intelligence", {fontSize:'32px'});
 					break;
 				case 1:
 					gargoyle.str += 3;
+					ectoplasm_text = game.add.text(300, 400, "+3 Strength", {fontSize:'32px'});
 					break;
-				case 2: 
+				case 0: 
 					gargoyle.maxhp += 10;
 					gargoyle.health += 10;
-					console.log(gargoyle.health);
+					ectoplasm_text = game.add.text(300, 400, "+10 Max Health", {fontSize:'32px'});
 					break;
 			}
+			collected_ectoplasm = game.add.sprite(300, 200, "collected_ectoplasm");
+			game.time.events.add(2000, function(){ectoplasm_text.destroy();collected_ectoplasm.destroy();}, this);
 		}
 	})
 
@@ -362,8 +373,10 @@ function gargoyleDead(game, gargoyleGood){
 function enemyDead(game, enemy){
 	switch(enemy.key){
 		case 'enemy_spearman':
-			if(game.rnd.integerInRange(0, 2) == 0){
-				enemy.current_tile.inhabitedBy = ectoplasm.addChild(game.add.sprite(enemy.x, enemy.y - 8, 'ectoplasmpickup'));
+			if(game.rnd.integerInRange(0, 0) == 0){
+				enemy.current_tile.inhabitedBy = ectoplasm.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'ectoplasmpickup'));
+				enemy.current_tile.inhabitedBy.stat_type = game.rnd.integerInRange(0, 2);
+				enemy.current_tile.inhabitedBy.frame = enemy.current_tile.inhabitedBy.stat_type;
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(8, 12);
 			} else {
 				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 8, enemy.y - 8, 'soulpickup'));
