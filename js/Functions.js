@@ -124,6 +124,8 @@ function initUI(game){
 		}));
 		gargoyle_ofinterest.select_marker = game.add.sprite(986, 114 + 85*(gargoyle_id), 'select_marker');
 		gargoyle_select_marker.add(gargoyle_ofinterest.select_marker);
+		gargoyle_ofinterest.indicator = game.add.sprite(gargoyle_ofinterest.x - 39, gargoyle_ofinterest.y -39, 'gargoyle_selected')
+		gargoyle_ofinterest.indicator.visible = false;
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 }
@@ -139,6 +141,7 @@ function spell_information(gargoyle){
 }
 
 function gargoyleOccupation(game, gargoyle){
+
 	gargoyle.current_tile = map.getTile(game.math.snapToFloor(gargoyle.x, 64) / 64, game.math.snapToFloor(gargoyle.y, 64) / 64, 0);
 	gargoyle.current_tile.occupied = true;
 	gargoyle.current_tile.inhabitedBy = gargoyle;
@@ -275,6 +278,9 @@ function gargoyleOccupation(game, gargoyle){
 			}
 		}
 	}
+
+	gargoyle.indicator.x = gargoyle.x - 39
+	gargoyle.indicator.y = gargoyle.y - 39;
 }
 
 function moveMarker(game, spell_destination, gargoyle_ofinterest){
@@ -687,6 +693,14 @@ function gargoyleSelected(game, gargoyleInteresting){
 	gargoyle_buttons.forEachAlive(function(other_button){
 		if(button_pressed!=other_button){
 			other_button.setFrames(0, 0, 0);
+		}
+	})
+
+	gargoyleInteresting.indicator.visible = true;
+
+	gargoyles.forEachAlive(function(gargoyle_ofinterest){
+		if(gargoyle_ofinterest!=gargoyleInteresting){
+			gargoyle_ofinterest.indicator.visible = false;
 		}
 	})
 }

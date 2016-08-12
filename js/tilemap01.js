@@ -31,6 +31,7 @@ Game.tilemap01.prototype = {
 
 		// Initialization of the gargoyles+first time setup
 		if(this.direction=='new'){
+			gargoyle_indicator = game.add.group();
 			gargoyles = game.add.group();
 			gargoyle_buttons = game.add.group();
 			gargoyle_hp_bars = game.add.group();

@@ -39,6 +39,7 @@ Game.Preload.prototype = {
 		this.load.image('teleport_spell', 'assets/images/teleport_spell.png');
 		this.load.image('sacrificial_stance', 'assets/images/sacrificial_stance.png');
 		this.load.image('select_marker', 'assets/images/select_marker.png');
+		this.load.image('gargoyle_selected', 'assets/images/gargoyle_selected.png');
 		this.load.tilemap('tilemap01', 'assets/maps/tilemap01.csv');
 		this.load.tilemap('tilemap02', 'assets/maps/tilemap02.csv');
 		this.load.tilemap('tilemap03', 'assets/maps/tilemap03.csv');
