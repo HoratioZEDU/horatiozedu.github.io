@@ -245,20 +245,22 @@ function gargoyleOccupation(game, gargoyle){
 			switch(soul.stat_type){
 				case 2:
 					gargoyle.intel += 2;
-					ectoplasm_text = game.add.text(300, 400, "+2 Intelligence", {fontSize:'32px'});
+					soul.ectoplasm_text = game.add.text(300, 400, "+2 Intelligence", {fontSize:'32px'});
 					break;
 				case 1:
 					gargoyle.str += 3;
-					ectoplasm_text = game.add.text(300, 400, "+3 Strength", {fontSize:'32px'});
+					soul.ectoplasm_text = game.add.text(300, 400, "+3 Strength", {fontSize:'32px'});
 					break;
 				case 0: 
 					gargoyle.maxhp += 10;
 					gargoyle.health += 10;
-					ectoplasm_text = game.add.text(300, 400, "+10 Max Health", {fontSize:'32px'});
+					soul.ectoplasm_text = game.add.text(300, 400, "+10 Max Health", {fontSize:'32px'});
 					break;
 			}
-			collected_ectoplasm = game.add.sprite(300, 200, "collected_ectoplasm");
-			game.time.events.add(2000, function(){ectoplasm_text.destroy();collected_ectoplasm.destroy();}, this);
+			soul.collected_ectoplasm = game.add.sprite(300, 200, "collected_ectoplasm");
+			soul.collected_ectoplasm.frame = soul.stat_type;
+			soul.collected_ectoplasm.timer = game.time.events.add(1000, function(){soul.ectoplasm_text.destroy();soul.collected_ectoplasm.destroy();}, this);
+			actionTimer = game.time.now + 1000;
 		}
 	})
 
@@ -861,7 +863,7 @@ function moveToNewRoom(game, direction){
 	}
 
 	gargoyles.forEach(function(gargoyle){
-		gargoyle.souls -= 35;
+		gargoyle.souls -= 25;
 	})
 
 	enemySpearmen.removeAll(true);

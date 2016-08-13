@@ -22,7 +22,7 @@ Game.Preload.prototype = {
 		this.load.spritesheet('defsprite', 'assets/spritesheets/defsprite.png', 64, 64, 5);
 		this.load.spritesheet('kindlesprite', 'assets/spritesheets/kindlesprite.png', 128, 128, 10);
 		this.load.spritesheet('ectoplasmpickup', 'assets/spritesheets/ectoplasm.png', 64, 64, 3);
-		this.load.spritesheet('collected_ectoplasm', 'assets/spritesheets/collected_ectoplasm.png', 192, 192, 1);
+		this.load.spritesheet('collected_ectoplasm', 'assets/spritesheets/collected_ectoplasm.png', 192, 192, 3);
 		this.load.image('tileset', 'assets/maps/tileset.png');
 		this.load.image('hud_background', 'assets/images/hud_background.png');
 		this.load.image('infotext_background', 'assets/images/infotext_background.png');
