@@ -57,8 +57,8 @@ Game.tilemap02.prototype = {
 
 		initEnemySpearman(game, 7*64, 3*64, Math.PI);
 		initEnemySpearman(game, 10*64, 5*64, Math.PI);
-
 		game.world.bringToTop(enemySpearmen);
+
 		// Initialization of controls
 		initControls(game);
 

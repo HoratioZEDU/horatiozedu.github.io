@@ -35,6 +35,17 @@ function initEnemySpearman(game, x, y, rotation){
 	enemySpearmen.callAll('animations.add', 'animations', 'die', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 9, false);
 }
 
+function initEnemyHeadboi(game, x, y, rotation){
+	enemyHeadboi.create(x + 32, y + 32, 'enemy_headboi');
+	enemyHeadboi.setAll('anchor.x', '0.5');
+	enemyHeadboi.setAll('anchor.y', '0.5');
+	enemyHeadboi.setAll('health', '40');
+	enemyHeadboi.setAll('damage', 10);
+	enemyHeadboi.setAll('rotation', rotation);
+	enemyHeadboi.callAll('animations.add', 'animations', 'punch', [1, 2, 3, 4, 5], 9, false);
+	enemyHeadboi.callAll('animations.add', 'animations', 'die', [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], 10, false);
+}
+
 function initControls(game){
 	controls = {
 		//Gargoyle selection keys
@@ -271,12 +282,15 @@ function gargoyleOccupation(game, gargoyle){
 	if(typeof gargoyle.kindlesprite != "undefined"){
 		if(gargoyle.kindlesprite.visible == true){
 			gargoyle.kindlesprite.x = gargoyle.x;
-			gargoyle.kindlesprite.y = gargoyle.y - 15;
+			gargoyle.kindlesprite.y = gargoyle.y;
+			gargoyle.kindlesprite.anchor.x = 0.5;
+			gargoyle.kindlesprite.anchor.y = 0.5;
 			gargoyle.kindlesprite.frame = (gargoyle.heavy_iterable+1)*2
 			console.log(gargoyle.kindlesprite.frame);
-			if(gargoyle.kindlesprite.animations.frame == 6){
-				gargoyle.kindlesprite.animations.play('idle');
-				console.log("aaa");
+			if(gargoyle.kindlesprite.animations.frame >= 6){
+				gargoyle.kindlesprite.rotation = gargoyle.rotation;
+			} else {
+				gargoyle.kindlesprite.rotation = 0;
 			}
 		}
 	}
@@ -312,6 +326,7 @@ function gargoyleDead(game, gargoyleGood){
 	gargoyleGood.destroy();
 	gargoyleGood.current_tile.occupied = false;
 	gargoyleGood.current_tile.inhabitedBy = null;
+	gargoyleGood.indicator.visible = false;
 	gargoyle_select_marker.removeAll(true);
 	gargoyle_buttons.removeAll(true);
 	gargoyle_hp_bars.removeAll(true);
@@ -381,7 +396,7 @@ function gargoyleDead(game, gargoyleGood){
 function enemyDead(game, enemy){
 	switch(enemy.key){
 		case 'enemy_spearman':
-			if(game.rnd.integerInRange(0, 0) == 0){
+			if(game.rnd.integerInRange(0, 2) == 0){
 				enemy.current_tile.inhabitedBy = ectoplasm.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'ectoplasmpickup'));
 				enemy.current_tile.inhabitedBy.stat_type = game.rnd.integerInRange(0, 2);
 				enemy.current_tile.inhabitedBy.frame = enemy.current_tile.inhabitedBy.stat_type;
@@ -390,6 +405,18 @@ function enemyDead(game, enemy){
 				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 8, enemy.y - 8, 'soulpickup'));
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(13, 17);
 			}
+			break;
+		case 'enemy_headboi':
+			if(game.rnd.integerInRange(0, 2) == 0){
+				enemy.current_tile.inhabitedBy = ectoplasm.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'ectoplasmpickup'));
+				enemy.current_tile.inhabitedBy.stat_type = game.rnd.integerInRange(0, 2);
+				enemy.current_tile.inhabitedBy.frame = enemy.current_tile.inhabitedBy.stat_type;
+				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(10, 14);
+			} else {
+				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 8, enemy.y - 8, 'soulpickup'));
+				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(18, 22);
+			}
+			break;
 	}
 	enemy.destroy();
 	enemy.current_tile.occupied = false;
@@ -534,10 +561,16 @@ function movement_up(game, gargoyle){
 			enemySpearmen.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
+			enemyHeadboi.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
 		}
 		if(gargoyle.gargoyle_tween.isRunning==true){																			// Enemy movement
 			gargoyle.tile_above.occupied = true;
 			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+			enemyHeadboi.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
 		}
@@ -580,10 +613,16 @@ function movement_down(game, gargoyle){
 			enemySpearmen.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
+			enemyHeadboi.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
 		}
 		if(gargoyle.gargoyle_tween.isRunning==true){
 			gargoyle.tile_below.occupied = true;
 			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+			enemyHeadboi.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
 		}
@@ -627,10 +666,16 @@ function movement_right(game, gargoyle){
 			enemySpearmen.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
+			enemyHeadboi.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
 		}
 		if(gargoyle.gargoyle_tween.isRunning==true){
 			gargoyle.tile_right.occupied = true;
 			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+			enemyHeadboi.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
 		}
@@ -673,10 +718,16 @@ function movement_left(game, gargoyle){
 			enemySpearmen.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
+			enemyHeadboi.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
 		}
 		if(gargoyle.gargoyle_tween.isRunning==true){
 			gargoyle.tile_left.occupied = true;
 			enemySpearmen.forEachAlive(function(enemy){
+				enemyMovement(game, enemy);
+			})
+			enemyHeadboi.forEachAlive(function(enemy){
 				enemyMovement(game, enemy);
 			})
 		}
@@ -786,6 +837,9 @@ function shootSpell(game, gargoyle, spell){
 function undoAllStances(game, gargoyle){
 	gargoyle.defense = gargoyle.base_defense;
 	gargoyle.opportunism = false;
+	if(gargoyle.heavy_iterable>=0){
+		gargoyle.kindlesprite.destroy();
+	}
 	gargoyle.heavy_iterable = -1;
 	gargoyle.protecting = false;
 }
@@ -826,38 +880,44 @@ function healspell(game, gargoyle){
 	enemySpearmen.forEachAlive(function(enemy){
 		enemyMovement(game, enemy);
 	})
+	enemyHeadboi.forEachAlive(function(enemy){
+		enemyMovement(game, enemy);
+	})
 	gargoyle.souls -= 20;
 }
 
 function moveToNewRoom(game, direction){
-
 	current_room = game.state.getCurrentState().key;
+	uprooms = [2, 3];
+	downrooms = [1];
+	leftrooms = [1, 3];
+	rightrooms = [2];
 	switch(direction){
 		case 'up':
-			next_room = game.rnd.pick([2, 3]);
+			next_room = game.rnd.pick(uprooms);
 			while('tilemap0'+next_room==current_room){
-				next_room = game.rnd.pick([2, 3]);
+				next_room = game.rnd.pick(uprooms);
 			}
 			break;
 
 		case 'down':
-			next_room = game.rnd.pick([1]);
+			next_room = game.rnd.pick(downrooms);
 			while('tilemap0'+next_room==current_room){
-				next_room = game.rnd.pick([1]);
+				next_room = game.rnd.pick(downrooms);
 			}
 			break;
 
 		case 'left':
-			next_room = game.rnd.pick([1, 3]);
+			next_room = game.rnd.pick(leftrooms);
 			while('tilemap0'+next_room==current_room){
-				next_room = game.rnd.pick([1, 3]);
+				next_room = game.rnd.pick(leftrooms);
 			}
 			break;
 
 		case 'right':
-			next_room = game.rnd.pick([2]);
+			next_room = game.rnd.pick(rightrooms);
 			while('tilemap0'+next_room==current_room){
-				next_room = game.rnd.pick([2]);
+				next_room = game.rnd.pick(rightrooms);
 			}
 			break;
 	}
@@ -867,6 +927,8 @@ function moveToNewRoom(game, direction){
 	})
 
 	enemySpearmen.removeAll(true);
+
+	enemyHeadboi.removeAll(true);
 
 	ectoplasm.removeAll(true);
 

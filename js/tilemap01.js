@@ -43,6 +43,7 @@ Game.tilemap01.prototype = {
 			dropped_souls = game.add.group();
 			ectoplasm = game.add.group();
 			enemySpearmen = game.add.group();
+			enemyHeadboi = game.add.group();
 			initGargoyle(game, 5*64, 512);
 			initGargoyle(game, 6*64, 512);
 			initGargoyle(game, 7*64, 512);
@@ -68,12 +69,12 @@ Game.tilemap01.prototype = {
 		}
 
 		game.world.bringToTop(dropped_souls);
-
+		game.world.bringToTop(ectoplasm);
 		game.world.bringToTop(gargoyles);
 
 		// Initialization of enemies
 		initEnemySpearman(game, 6*64, 5*64, Math.PI);
-		initEnemySpearman(game, 4*64, 1*64, Math.PI);
+		initEnemyHeadboi(game, 4*64, 1*64, Math.PI);
 		initEnemySpearman(game, 8*64, 1*64, Math.PI);
 
 		game.world.bringToTop(enemySpearmen);
@@ -88,6 +89,9 @@ Game.tilemap01.prototype = {
 		}
 		for (i = 0; i < enemySpearmen.children.length; i++){
 			enemyOccupation(game, enemySpearmen.children[i]);
+		}
+		for (i = 0; i < enemyHeadboi.children.length; i++){
+			enemyOccupation(game, enemyHeadboi.children[i]);
 		}
 	}
 }
