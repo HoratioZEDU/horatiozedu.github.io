@@ -23,6 +23,7 @@ Game.Preload.prototype = {
 		this.load.spritesheet('defsprite', 'assets/spritesheets/defsprite.png', 64, 64, 5);
 		this.load.spritesheet('kindlesprite', 'assets/spritesheets/kindlesprite.png', 128, 128, 10);
 		this.load.spritesheet('ectoplasmpickup', 'assets/spritesheets/ectoplasm.png', 64, 64, 3);
+		this.load.spritesheet('soulpickup', 'assets/spritesheets/soulpickup.png', 64, 64, 3);
 		this.load.spritesheet('collected_ectoplasm', 'assets/spritesheets/collected_ectoplasm.png', 192, 192, 3);
 		this.load.image('tileset', 'assets/maps/tileset.png');
 		this.load.image('hud_background', 'assets/images/hud_background.png');
@@ -32,7 +33,6 @@ Game.Preload.prototype = {
 		this.load.image('hud_overlay', 'assets/images/hud_overlay.png');
 		this.load.image('hp_icon', 'assets/images/hp_icon.png');
 		this.load.image('soul_icon', 'assets/images/soul_icon.png');
-		this.load.image('soulpickup', 'assets/images/soul_icon.png');
 		this.load.image('defensive_stance', 'assets/images/defensive_stance.png');
 		this.load.image('healing_spell', 'assets/images/healing_spell.png');
 		this.load.image('heavy_stance', 'assets/images/heavy_stance.png');

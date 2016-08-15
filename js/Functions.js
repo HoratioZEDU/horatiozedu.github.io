@@ -389,20 +389,20 @@ function gargoyleDead(game, gargoyleGood){
 	} else if(gargoyles.children.length != 0) {
 		gargoyleSelected(game, gargoyle);
 	}
-
-	// game.world.filters = [game.add.filter('BlurX'), game.add.filter('BlurY')];
 }
 
 function enemyDead(game, enemy){
 	switch(enemy.key){
 		case 'enemy_spearman':
-			if(game.rnd.integerInRange(0, 2) == 0){
+			if(game.rnd.integerInRange(0, 2) == 0){		// FIXME: The urge to reformat inhabitedBy as an array to hold multiple items rather than single var
 				enemy.current_tile.inhabitedBy = ectoplasm.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'ectoplasmpickup'));
 				enemy.current_tile.inhabitedBy.stat_type = game.rnd.integerInRange(0, 2);
 				enemy.current_tile.inhabitedBy.frame = enemy.current_tile.inhabitedBy.stat_type;
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(8, 12);
 			} else {
-				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 8, enemy.y - 8, 'soulpickup'));
+				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'soulpickup'));
+				// enemy.current_tile.inhabitedBy.animations.add('idle', [0, 1, 2], 1, true);
+				// enemy.current_tile.inhabitedBy.animations.play('idle');
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(13, 17);
 			}
 			break;
@@ -413,7 +413,9 @@ function enemyDead(game, enemy){
 				enemy.current_tile.inhabitedBy.frame = enemy.current_tile.inhabitedBy.stat_type;
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(10, 14);
 			} else {
-				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 8, enemy.y - 8, 'soulpickup'));
+				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'soulpickup'));
+				// enemy.current_tile.inhabitedBy.animations.add('idle', [0, 1, 2], 1, true);
+				// enemy.current_tile.inhabitedBy.animations.play('idle');
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(18, 22);
 			}
 			break;
@@ -478,7 +480,7 @@ function enemyMovement(game, enemy){
 		enemy.rotation = Math.PI/2;
 		enemy.animations.play('punch').onComplete.add(function(){enemy.frame = 0});
 		game.time.events.add(300, function(){game.add.audio('attack').play();}, this);
-	} else if(closest_gargoyle.x < enemy.x && (typeof enemy_tile_left.occupied==="undefined" || enemy_tile_left.occupied == false) && enemy_tile_left.index<=8){		// Walk left
+	} else if(closest_gargoyle.x < enemy.x && (typeof enemy_tile_left.occupied==="undefined" || enemy_tile_left.occupied == false) && (typeof enemy_tile_left.inhabitedBy==="undefined" || enemy_tile_left.inhabitedBy == null || (enemy_tile_left.inhabitedBy.key != "soulpickup" && enemy_tile_left.inhabitedBy.key != "ectoplasmpickup")) && enemy_tile_left.index<=8){		// Walk left
 		enemy_tile_left.occupied = true;
 		enemy_tile_left.inhabitedBy = enemy;
 		enemy_tween = game.add.tween(enemy);
@@ -489,7 +491,7 @@ function enemyMovement(game, enemy){
 		})
 		enemy_tween.to({x:(enemy_tile_left.x * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
 		enemy.rotation = 3*Math.PI/2;
-	} else if (closest_gargoyle.x  > enemy.x && (typeof enemy_tile_right.occupied==="undefined" || enemy_tile_right.occupied == false) && enemy_tile_right.index<=8){	// Walk right
+	} else if (closest_gargoyle.x  > enemy.x && (typeof enemy_tile_right.occupied==="undefined" || enemy_tile_right.occupied == false) && (typeof enemy_tile_right.inhabitedBy==="undefined" || enemy_tile_right.inhabitedBy == null || (enemy_tile_right.inhabitedBy.key != "soulpickup" && enemy_tile_right.inhabitedBy.key != "ectoplasmpickup")) && enemy_tile_right.index<=8){	// Walk right
 		enemy_tile_right.occupied = true;
 		enemy_tile_right.inhabitedBy = enemy;
 		enemy_tween = game.add.tween(enemy);
@@ -500,7 +502,7 @@ function enemyMovement(game, enemy){
 		})
 		enemy_tween.to({x:(enemy_tile_right.x * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
 		enemy.rotation = Math.PI/2;
-	} else if (closest_gargoyle.y  > enemy.y && (typeof enemy_tile_below.occupied==="undefined" || enemy_tile_below.occupied == false) && enemy_tile_below.index<=8){	// Walk down
+	} else if (closest_gargoyle.y  > enemy.y && (typeof enemy_tile_below.occupied==="undefined" || enemy_tile_below.occupied == false) && (typeof enemy_tile_below.inhabitedBy==="undefined" || enemy_tile_below.inhabitedBy == null || (enemy_tile_below.inhabitedBy.key != "soulpickup" && enemy_tile_below.inhabitedBy.key != "ectoplasmpickup")) && enemy_tile_below.index<=8){	// Walk down
 		enemy_tile_below.occupied = true;
 		enemy_tile_below.inhabitedBy = enemy;
 		enemy_tween = game.add.tween(enemy);
@@ -511,7 +513,7 @@ function enemyMovement(game, enemy){
 		})
 		enemy_tween.to({y:(enemy_tile_below.y * 64) + 32}, 600, Phaser.Easing.Linear.None, true, 0);
 		enemy.rotation = Math.PI;
-	} else if (closest_gargoyle.y  < enemy.y && (typeof enemy_tile_above.occupied==="undefined" || enemy_tile_above.occupied == false) && enemy_tile_above.index<=8){	// Walk up
+	} else if (closest_gargoyle.y  < enemy.y && (typeof enemy_tile_above.occupied==="undefined" || enemy_tile_above.occupied == false) && (typeof enemy_tile_above.inhabitedBy==="undefined" || enemy_tile_above.inhabitedBy == null || (enemy_tile_above.inhabitedBy.key != "soulpickup" && enemy_tile_above.inhabitedBy.key != "ectoplasmpickup")) && enemy_tile_above.index<=8){	// Walk up
 		enemy_tile_above.occupied = true;
 		enemy_tile_above.inhabitedBy = enemy;
 		enemy_tween = game.add.tween(enemy);
@@ -790,9 +792,6 @@ function spellSelected(game, gargoyle_ofinterest, spellCool){
 			break;
 	}
 	console.log(gargoyle.activeSpell); 
-
-	// TODO: add UI interaction here
-	// gargoyle_ofinterest.select_marker.x = gargoyle_spells.getChildAt((spellCool - 1) + 4*gargoyles.getIndex(gargoyle)).x;   	//working, find a better solution
 }
 
 function shootSpell(game, gargoyle, spell){
