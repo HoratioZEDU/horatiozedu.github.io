@@ -402,8 +402,8 @@ function enemyDead(game, enemy){
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(16, 20);
 			} else {
 				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'soulpickup'));
-				// enemy.current_tile.inhabitedBy.animations.add('idle', [0, 1, 2], 1, true);
-				// enemy.current_tile.inhabitedBy.animations.play('idle');
+				enemy.current_tile.inhabitedBy.animations.add('idle', [0, 1, 2], 2, true);
+				enemy.current_tile.inhabitedBy.animations.play('idle');
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(22, 25);
 			}
 			break;
@@ -415,8 +415,8 @@ function enemyDead(game, enemy){
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(10, 14);
 			} else {
 				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'soulpickup'));
-				// enemy.current_tile.inhabitedBy.animations.add('idle', [0, 1, 2], 1, true);
-				// enemy.current_tile.inhabitedBy.animations.play('idle');
+				enemy.current_tile.inhabitedBy.animations.add('idle', [0, 1, 2], 2, true);
+				enemy.current_tile.inhabitedBy.animations.play('idle');
 				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(18, 22);
 			}
 			break;
