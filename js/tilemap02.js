@@ -51,12 +51,14 @@ Game.tilemap02.prototype = {
 
 		game.world.bringToTop(dropped_souls);
 		game.world.bringToTop(ectoplasm);
+		game.world.bringToTop(gargoyle_indicator);
 		game.world.bringToTop(gargoyles);
 
 		// Initialization of enemies
 
 		initEnemySpearman(game, 7*64, 3*64, Math.PI);
 		initEnemySpearman(game, 10*64, 5*64, Math.PI);
+		game.world.bringToTop(enemyHeadboi);
 		game.world.bringToTop(enemySpearmen);
 
 		// Initialization of controls

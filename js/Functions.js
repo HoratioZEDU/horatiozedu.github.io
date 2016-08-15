@@ -136,6 +136,7 @@ function initUI(game){
 		gargoyle_ofinterest.select_marker = game.add.sprite(986, 114 + 85*(gargoyle_id), 'select_marker');
 		gargoyle_select_marker.add(gargoyle_ofinterest.select_marker);
 		gargoyle_ofinterest.indicator = game.add.sprite(gargoyle_ofinterest.x - 39, gargoyle_ofinterest.y -39, 'gargoyle_selected')
+		gargoyle_indicator.addChild(gargoyle_ofinterest.indicator);
 		gargoyle_ofinterest.indicator.visible = false;
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
@@ -398,12 +399,12 @@ function enemyDead(game, enemy){
 				enemy.current_tile.inhabitedBy = ectoplasm.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'ectoplasmpickup'));
 				enemy.current_tile.inhabitedBy.stat_type = game.rnd.integerInRange(0, 2);
 				enemy.current_tile.inhabitedBy.frame = enemy.current_tile.inhabitedBy.stat_type;
-				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(8, 12);
+				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(16, 20);
 			} else {
 				enemy.current_tile.inhabitedBy = dropped_souls.addChild(game.add.sprite(enemy.x - 32, enemy.y - 32, 'soulpickup'));
 				// enemy.current_tile.inhabitedBy.animations.add('idle', [0, 1, 2], 1, true);
 				// enemy.current_tile.inhabitedBy.animations.play('idle');
-				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(13, 17);
+				enemy.current_tile.inhabitedBy.soul_value = game.rnd.integerInRange(22, 25);
 			}
 			break;
 		case 'enemy_headboi':
