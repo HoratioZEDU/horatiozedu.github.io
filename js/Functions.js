@@ -889,10 +889,10 @@ function healspell(game, gargoyle){
 
 function moveToNewRoom(game, direction){
 	current_room = game.state.getCurrentState().key;
-	uprooms = [2, 3];
-	downrooms = [1];
+	uprooms = [2, 3, 4];
+	downrooms = [1, 4];
 	leftrooms = [1, 3];
-	rightrooms = [2];
+	rightrooms = [2, 4];
 	switch(direction){
 		case 'up':
 			next_room = game.rnd.pick(uprooms);
