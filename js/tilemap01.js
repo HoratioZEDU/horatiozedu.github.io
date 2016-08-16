@@ -51,18 +51,18 @@ Game.tilemap01.prototype = {
 			gargoyleSelected(game, gargoyles.getChildAt(0));
 		}
 		if(this.direction == 'left') {
-			var n = 1;
+			var n = 0;
 			gargoyles.forEach(function(gargoyleIterable){
 				gargoyleIterable.x = ((game.math.snapToFloor((n%3), 3)*64) + 12*64 + 32);
-				gargoyleIterable.y = (((n%3))*-64) + 512 + 32;
+				gargoyleIterable.y = (((n%3))*64) + 6*64 + 32;
 				gargoyleIterable.rotation = 3*Math.PI/2;
 				n += 1;
 			})
 		} else if(this.direction == 'down') {
-			var n = 1;
+			var n = 0;
 			gargoyles.forEach(function(gargoyleIterable){
 				gargoyleIterable.y = ((game.math.snapToFloor((n%3), 3)*64) + 0*64 + 32);
-				gargoyleIterable.x = (((n%3))*-64) + 7*64 + 32;
+				gargoyleIterable.x = (((n%3))*64) + 5*64 + 32;
 				gargoyleIterable.rotation = Math.PI;
 				n += 1;
 			})

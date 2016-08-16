@@ -22,6 +22,7 @@ Game.Preload.prototype = {
 		this.load.spritesheet('healsprite', 'assets/spritesheets/healsprite.png', 64, 64, 8);
 		this.load.spritesheet('defsprite', 'assets/spritesheets/defsprite.png', 64, 64, 5);
 		this.load.spritesheet('kindlesprite', 'assets/spritesheets/kindlesprite.png', 128, 128, 10);
+		this.load.spritesheet('sacsprite', 'assets/spritesheets/sacsprite.png', 128, 128, 6);
 		this.load.spritesheet('ectoplasmpickup', 'assets/spritesheets/ectoplasm.png', 64, 64, 3);
 		this.load.spritesheet('soulpickup', 'assets/spritesheets/soulpickup.png', 64, 64, 3);
 		this.load.spritesheet('collected_ectoplasm', 'assets/spritesheets/collected_ectoplasm.png', 192, 192, 3);

@@ -46,18 +46,18 @@ Game.tilemap03.prototype = {
 		// Initialization of gargoyles
 
 		if(this.direction == 'left') {
-			var n = 1;
+			var n = 0;
 			gargoyles.forEach(function(gargoyleIterable){
 				gargoyleIterable.x = ((game.math.snapToFloor((n%3), 3)*64) + 12*64 + 32);
-				gargoyleIterable.y = (((n%3))*-64) + 6*64 + 32;
+				gargoyleIterable.y = (((n%3))*64) + 4*64 + 32;
 				gargoyleIterable.rotation = 3*Math.PI/2;
 				n += 1;
 			})
 		} else if(this.direction == 'up') {
-			var n = 1;
+			var n = 0;
 			gargoyles.forEach(function(gargoyleIterable){
 				gargoyleIterable.y = ((game.math.snapToFloor((n%3), 3)*64) + 9*64 + 32);
-				gargoyleIterable.x = (((n%3))*-64) + 4*64 + 32;
+				gargoyleIterable.x = (((n%3))*64) + 2*64 + 32;
 				gargoyleIterable.rotation = 0;
 				n += 1;
 			})
@@ -86,9 +86,11 @@ Game.tilemap03.prototype = {
 		for (i = 0; i < gargoyles.children.length; i++){
 			gargoyleOccupation(game, gargoyles.children[i]);
 		}
-
 		for (i = 0; i < enemySpearmen.children.length; i++){
 			enemyOccupation(game, enemySpearmen.children[i]);
+		}
+		for (i = 0; i < enemyHeadboi.children.length; i++){
+			enemyOccupation(game, enemyHeadboi.children[i]);
 		}
 	}
 }
