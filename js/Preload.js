@@ -46,6 +46,7 @@ Game.Preload.prototype = {
 		this.load.tilemap('tilemap02', 'assets/maps/tilemap02.csv');
 		this.load.tilemap('tilemap03', 'assets/maps/tilemap03.csv');
 		this.load.tilemap('tilemap04', 'assets/maps/tilemap04.csv');
+		this.load.tilemap('tilemap05', 'assets/maps/tilemap05.csv');
 		this.load.audio('movement', 'assets/audio/movement.ogg');
 		this.load.audio('attack', 'assets/audio/attack.ogg');
 		this.load.audio('soulpickup', 'assets/audio/soulpickup.ogg');
