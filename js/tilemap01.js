@@ -40,6 +40,7 @@ Game.tilemap01.prototype = {
 			gargoyle_icons = game.add.group();
 			gargoyle_spells = game.add.group();
 			gargoyle_select_marker = game.add.group();
+			gargoyle_statinfo = game.add.group();
 			dropped_souls = game.add.group();
 			ectoplasm = game.add.group();
 			enemySpearmen = game.add.group();
