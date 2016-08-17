@@ -140,23 +140,25 @@ function initUI(game){
 		gargoyle_ofinterest.indicator.visible = false;
 		gargoyle_ofinterest.activeSpell = gargoyle_ofinterest.spell1;
 
-		gargoyle_ofinterest.statinfo = game.add.sprite(884, 350, (gargoyle_id + 1).toString() + '_info');
-		gargoyle_ofinterest.statinfo.health = game.add.text(914, 422, 'Health:', {fill: '#ffffff', fontSize:'22px'});
-		gargoyle_ofinterest.statinfo.health_value = game.add.text(1085, 422, gargoyle_ofinterest.health + '/' + gargoyle_ofinterest.maxhp, {fill: '#ffffff', fontSize:'22px'});
+		statstyle = {fill: '#5f4929', fontSize:'22px'};
+		statstyle2 = {fill: '#8c642a', fontSize:'22px'};
+
+		gargoyle_ofinterest.statinfo = gargoyle_statinfo.addChild(game.add.sprite(884, 350, (gargoyle_id + 1).toString() + '_info'));
+		gargoyle_ofinterest.statinfo.health = gargoyle_statinfo.addChild(game.add.text(914, 422, 'Health:',statstyle));
+		gargoyle_ofinterest.statinfo.health_value = gargoyle_statinfo.addChild(game.add.text(1085, 422, gargoyle_ofinterest.health + '/' + gargoyle_ofinterest.maxhp, statstyle2));
 		gargoyle_ofinterest.statinfo.health_value.anchor.x = 0.5;
-		gargoyle_ofinterest.statinfo.souls = game.add.text(914, 460,  'Souls:', {fill: '#ffffff', fontSize:'22px'});
-		gargoyle_ofinterest.statinfo.souls_value = game.add.text(1085, 460, gargoyle_ofinterest.souls + '/100', {fill: '#ffffff', fontSize:'22px'});
+		gargoyle_ofinterest.statinfo.souls = gargoyle_statinfo.addChild(game.add.text(914, 460,  'Souls:', statstyle));
+		gargoyle_ofinterest.statinfo.souls_value = gargoyle_statinfo.addChild(game.add.text(1085, 460, gargoyle_ofinterest.souls + '/100',statstyle2));
 		gargoyle_ofinterest.statinfo.souls_value.anchor.x = 0.5;
-		gargoyle_ofinterest.statinfo.defense = game.add.text(914, 498,  'Defense:', {fill: '#ffffff', fontSize:'22px'});
-		gargoyle_ofinterest.statinfo.defense_value = game.add.text(1085, 498, gargoyle_ofinterest.defense, {fill: '#ffffff', fontSize:'22px'});
+		gargoyle_ofinterest.statinfo.defense = gargoyle_statinfo.addChild(game.add.text(914, 498,  'Defense:', statstyle));
+		gargoyle_ofinterest.statinfo.defense_value = gargoyle_statinfo.addChild(game.add.text(1085, 498, gargoyle_ofinterest.defense, statstyle2));
 		gargoyle_ofinterest.statinfo.defense_value.anchor.x = 0.5;
-		gargoyle_ofinterest.statinfo.strength = game.add.text(914, 534,  'Strength:', {fill: '#ffffff', fontSize:'22px'});
-		gargoyle_ofinterest.statinfo.strength_value = game.add.text(1085, 534, gargoyle_ofinterest.str, {fill: '#ffffff', fontSize:'22px'});
+		gargoyle_ofinterest.statinfo.strength = gargoyle_statinfo.addChild(game.add.text(914, 534,  'Strength:',statstyle));
+		gargoyle_ofinterest.statinfo.strength_value = gargoyle_statinfo.addChild(game.add.text(1085, 534, gargoyle_ofinterest.str, statstyle2));
 		gargoyle_ofinterest.statinfo.strength_value.anchor.x = 0.5;
-		gargoyle_ofinterest.statinfo.intelligence = game.add.text(914, 571,  'Intelligence:', {fill: '#ffffff', fontSize:'22px'});
-		gargoyle_ofinterest.statinfo.intelligence_value = game.add.text(1085, 571, gargoyle_ofinterest.intel, {fill: '#ffffff', fontSize:'22px'});
+		gargoyle_ofinterest.statinfo.intelligence = gargoyle_statinfo.addChild(game.add.text(914, 571,  'Intelligence:', statstyle));
+		gargoyle_ofinterest.statinfo.intelligence_value = gargoyle_statinfo.addChild(game.add.text(1085, 571, gargoyle_ofinterest.intel, statstyle2));
 		gargoyle_ofinterest.statinfo.intelligence_value.anchor.x = 0.5;
-		gargoyle_statinfo.addChild(gargoyle_ofinterest.statinfo);
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 }
@@ -173,7 +175,7 @@ function spell_information(gargoyle){
 
 function gargoyleOccupation(game, gargoyle){
 
-	gargoyle.statinfo.health_value.text = gargoyle.health + '/' + gargoyle.maxhp;
+	gargoyle.statinfo.health_value.text = game.math.snapToFloor(gargoyle.health, 1) + '/' + gargoyle.maxhp;
 	gargoyle.statinfo.souls_value.text = gargoyle.souls + '/100';
 	gargoyle.statinfo.defense_value.text =  gargoyle.defense;
 	gargoyle.statinfo.strength_value.text = gargoyle.str;
@@ -249,7 +251,7 @@ function gargoyleOccupation(game, gargoyle){
 		spell_information(gargoyle_ofinterest);		// Gargoyle specific now
 		if(spell_icon.input.pointerOver() && spell_icon.help_text.text == "" && gargoyle_ofinterest.frame == 0){
 			spell_icon.help_background = game.add.sprite(880, 10, 'infotext_background');
-			spell_icon.help_text = game.add.text(895, 20, spell_info[spell_icon.key], {fontSize: '12px', fill:'#999999'});
+			spell_icon.help_text = game.add.text(895, 20, spell_info[spell_icon.key], {fontSize: '12px', fill:'#aaaaaa'});
 		}
 		if(spell_icon.input.pointerOut()){
 			if(spell_icon.help_text.text != ""){
@@ -321,6 +323,14 @@ function gargoyleOccupation(game, gargoyle){
 		}
 	}
 
+	if(typeof gargoyle.sacsprite != "undefined"){
+		if(gargoyle.sacsprite.visible == true){
+			gargoyle.sacsprite.x = gargoyle.x;
+			gargoyle.sacsprite.y = gargoyle.y;
+			gargoyle.sacsprite.rotation = gargoyle.rotation;
+		}
+	}
+
 	gargoyle.indicator.x = gargoyle.x - 39
 	gargoyle.indicator.y = gargoyle.y - 39;
 }
@@ -360,6 +370,7 @@ function gargoyleDead(game, gargoyleGood){
 	gargoyle_ui_bg.removeAll(true);
 	gargoyle_icons.removeAll(true);
 	gargoyle_spells.removeAll(true);
+	gargoyle_statinfo.removeAll(true);
 	gargoyles.forEachAlive(function(gargoyle_ofinterest){
 		gargoyle_id = gargoyles.getIndex(gargoyle_ofinterest);
 		gargoyle_buttons.addChild(game.add.button(884, 85 + 85*(gargoyle_id), (gargoyle_id+1).toString() + '_button', function(){
@@ -405,6 +416,25 @@ function gargoyleDead(game, gargoyleGood){
 		}
 		gargoyle_select_marker.add(gargoyle_ofinterest.select_marker);
 		//gargoyleSelected(game, gargoyle_ofinterest);
+		statstyle = {fill: '#5f4929', fontSize:'22px'};
+		statstyle2 = {fill: '#8c642a', fontSize:'22px'};
+
+		gargoyle_ofinterest.statinfo = gargoyle_statinfo.addChild(game.add.sprite(884, 350, (gargoyle_id + 1).toString() + '_info'));
+		gargoyle_ofinterest.statinfo.health = gargoyle_statinfo.addChild(game.add.text(914, 422, 'Health:',statstyle));
+		gargoyle_ofinterest.statinfo.health_value = gargoyle_statinfo.addChild(game.add.text(1085, 422, gargoyle_ofinterest.health + '/' + gargoyle_ofinterest.maxhp, statstyle2));
+		gargoyle_ofinterest.statinfo.health_value.anchor.x = 0.5;
+		gargoyle_ofinterest.statinfo.souls = gargoyle_statinfo.addChild(game.add.text(914, 460,  'Souls:', statstyle));
+		gargoyle_ofinterest.statinfo.souls_value = gargoyle_statinfo.addChild(game.add.text(1085, 460, gargoyle_ofinterest.souls + '/100',statstyle2));
+		gargoyle_ofinterest.statinfo.souls_value.anchor.x = 0.5;
+		gargoyle_ofinterest.statinfo.defense = gargoyle_statinfo.addChild(game.add.text(914, 498,  'Defense:', statstyle));
+		gargoyle_ofinterest.statinfo.defense_value = gargoyle_statinfo.addChild(game.add.text(1085, 498, gargoyle_ofinterest.defense, statstyle2));
+		gargoyle_ofinterest.statinfo.defense_value.anchor.x = 0.5;
+		gargoyle_ofinterest.statinfo.strength = gargoyle_statinfo.addChild(game.add.text(914, 534,  'Strength:',statstyle));
+		gargoyle_ofinterest.statinfo.strength_value = gargoyle_statinfo.addChild(game.add.text(1085, 534, gargoyle_ofinterest.str, statstyle2));
+		gargoyle_ofinterest.statinfo.strength_value.anchor.x = 0.5;
+		gargoyle_ofinterest.statinfo.intelligence = gargoyle_statinfo.addChild(game.add.text(914, 571,  'Intelligence:', statstyle));
+		gargoyle_ofinterest.statinfo.intelligence_value = gargoyle_statinfo.addChild(game.add.text(1085, 571, gargoyle_ofinterest.intel, statstyle2));
+		gargoyle_ofinterest.statinfo.intelligence_value.anchor.x = 0.5;
 	})
 	gargoyle_spells.setAll('help_text', game.add.text(), false, false, 0, true);
 	if(gargoyles.children.length == 0){
@@ -469,7 +499,7 @@ function enemyMovement(game, enemy){
 	if(closest_gargoyle == enemy_tile_above.inhabitedBy){
 		local_damage = game.rnd.integerInRange(enemy.damage, enemy.damage + 5);		// Punch up
 		if(enemy_tile_above.inhabitedBy.protectedflag == true){
-			enemy_tile_above.inhabitedBy.protectedBy.health -= enemy.damage / 5;
+			enemy_tile_above.inhabitedBy.protectedBy.health -= local_damage - game.math.snapToFloor(enemy_tile_above.inhabitedBy.protectedBy.intel*1.5, 1);
 		} else {
 			enemy_tile_above.inhabitedBy.health -= local_damage - enemy_tile_above.inhabitedBy.defense;
 		}
@@ -479,7 +509,7 @@ function enemyMovement(game, enemy){
 	} else if(closest_gargoyle == enemy_tile_below.inhabitedBy){
 		local_damage = game.rnd.integerInRange(enemy.damage, enemy.damage + 5);		// Punch down
 		if(enemy_tile_below.inhabitedBy.protectedflag == true){
-			enemy_tile_below.inhabitedBy.protectedBy.health -= local_damage / 5;
+			enemy_tile_below.inhabitedBy.protectedBy.health -= local_damage - game.math.snapToFloor(enemy_tile_below.inhabitedBy.protectedBy.intel*1.5, 1);;
 		} else {
 			enemy_tile_below.inhabitedBy.health -= local_damage - enemy_tile_below.inhabitedBy.defense;
 		}
@@ -489,7 +519,7 @@ function enemyMovement(game, enemy){
 	} else if(closest_gargoyle == enemy_tile_left.inhabitedBy){
 		local_damage = game.rnd.integerInRange(enemy.damage, enemy.damage + 5);		// Punch left
 		if(enemy_tile_left.inhabitedBy.protectedflag == true){
-			enemy_tile_left.inhabitedBy.protectedBy.health -= enemy.damage / 5;
+			enemy_tile_left.inhabitedBy.protectedBy.health -= local_damage - game.math.snapToFloor(enemy_tile_left.inhabitedBy.protectedBy.intel*1.5, 1);;
 		} else {
 			enemy_tile_left.inhabitedBy.health -= local_damage - enemy_tile_left.inhabitedBy.defense;
 		}
@@ -499,7 +529,7 @@ function enemyMovement(game, enemy){
 	} else if(closest_gargoyle == enemy_tile_right.inhabitedBy){
 		local_damage = game.rnd.integerInRange(enemy.damage, enemy.damage + 5);		// Punch right
 		if(enemy_tile_right.inhabitedBy.protectedflag == true){
-			enemy_tile_right.inhabitedBy.protectedBy.health -= enemy.damage / 5;
+			enemy_tile_right.inhabitedBy.protectedBy.health -= local_damage - game.math.snapToFloor(enemy_tile_right.inhabitedBy.protectedBy.intel*1.5, 1);;
 		} else {
 			enemy_tile_right.inhabitedBy.health -= local_damage - enemy_tile_right.inhabitedBy.defense;
 		}
@@ -864,6 +894,11 @@ function shootSpell(game, gargoyle, spell){
 		case 'sacrificial_stance':
 			undoAllStances(game, gargoyle);
 			gargoyle.protecting = true;
+			gargoyle.sacsprite = game.add.sprite(gargoyle.x, gargoyle.y, 'sacsprite');
+			gargoyle.sacsprite.animations.add('start', [0, 1, 2, 3, 4, 5], 5, false);
+			gargoyle.sacsprite.anchor.x = 0.5;
+			gargoyle.sacsprite.anchor.y = 0.5;
+			gargoyle.sacsprite.animations.play('start');
 			break;
 		case 'healing_spell':
 			if(game.time.now > actionTimer){actionTimer = game.time.now + 600;healspell(game, gargoyle);game.add.audio('heal_spell').play();};
@@ -876,6 +911,9 @@ function undoAllStances(game, gargoyle){
 	gargoyle.opportunism = false;
 	if(gargoyle.heavy_iterable>=0){
 		gargoyle.kindlesprite.destroy();
+	}
+	if(gargoyle.protecting == true){
+		gargoyle.sacsprite.destroy();
 	}
 	gargoyle.heavy_iterable = -1;
 	gargoyle.protecting = false;
