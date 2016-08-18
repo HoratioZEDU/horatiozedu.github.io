@@ -331,6 +331,14 @@ function gargoyleOccupation(game, gargoyle){
 		}
 	}
 
+	if(typeof gargoyle.oppsprite != "undefined"){
+		if(gargoyle.oppsprite.visible == true){
+			gargoyle.oppsprite.x = gargoyle.x;
+			gargoyle.oppsprite.y = gargoyle.y;
+			gargoyle.oppsprite.rotation = gargoyle.rotation;
+		}
+	}
+
 	gargoyle.indicator.x = gargoyle.x - 39
 	gargoyle.indicator.y = gargoyle.y - 39;
 }
@@ -880,6 +888,11 @@ function shootSpell(game, gargoyle, spell){
 			break;
 		case 'opportunistic_stance':
 			undoAllStances(game, gargoyle);
+			gargoyle.oppsprite = game.add.sprite(gargoyle.x, gargoyle.y, 'oppsprite');
+			gargoyle.oppsprite.animations.add('start', [0, 1], 3, false);
+			gargoyle.oppsprite.anchor.x = 0.5;
+			gargoyle.oppsprite.anchor.y = 0.5;
+			gargoyle.oppsprite.animations.play('start');
 			gargoyle.opportunism = true;
 			break;
 		case 'heavy_stance':
@@ -908,13 +921,16 @@ function shootSpell(game, gargoyle, spell){
 
 function undoAllStances(game, gargoyle){
 	gargoyle.defense = gargoyle.base_defense;
-	gargoyle.opportunism = false;
 	if(gargoyle.heavy_iterable>=0){
 		gargoyle.kindlesprite.destroy();
 	}
 	if(gargoyle.protecting == true){
 		gargoyle.sacsprite.destroy();
 	}
+	if(gargoyle.opportunism == true){
+		gargoyle.oppsprite.destroy();
+	}
+	gargoyle.opportunism = false;
 	gargoyle.heavy_iterable = -1;
 	gargoyle.protecting = false;
 }
