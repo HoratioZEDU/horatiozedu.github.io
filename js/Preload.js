@@ -45,6 +45,7 @@ Game.Preload.prototype = {
 		this.load.image('1_info', 'assets/images/1_info.png');
 		this.load.image('2_info', 'assets/images/2_info.png');
 		this.load.image('3_info', 'assets/images/3_info.png');
+		this.load.image('setinstone', 'assets/images/set_in_stone.png');
 		this.load.tilemap('tilemap01', 'assets/maps/tilemap01.csv');
 		this.load.tilemap('tilemap02', 'assets/maps/tilemap02.csv');
 		this.load.tilemap('tilemap03', 'assets/maps/tilemap03.csv');
